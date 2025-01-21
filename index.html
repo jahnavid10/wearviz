@@ -5,7 +5,6 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 		<style>
-
 		</style>
 		<meta charset="utf-8" />
 	</head>
@@ -26,6 +25,7 @@
     vid = document.getElementById('v0');
 
     function makeChart(data) {
+    	console.log(data)
       var chart = new Chart('chart', {
           type: 'line',
           data: data,
