@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+		<style>
+
+		</style>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<div id="wrapper">
+			<video id="v0" tabindex="0", autobuffer preload width="320" height="240" controls>
+	        <source type='video/mp4;codecs="avc1.42E01E, mp4a.40.2"' src="sbj_0.mp4"></source>
+	    </video>
+      <canvas id="chart"></canvas>
+    </div>
+
+		<script>
+
+    var frameNumber = 0, // start video at frame 0
+    // lower numbers = faster playback
+    playbackConst = 1000,
+    // select video element
+    vid = document.getElementById('v0');
+
+    function makeChart(data) {
+      var chart = new Chart('chart', {
+          type: 'line',
+          data: data,
+          options: {
+              scales: {
+                  x: {
+                      type: 'timeseries',
+                  }
+              }
+          }
+      });
+    }
+    // Request data using D3
+    //d3.csv("./sbj_0.csv").then(makeChart);
+		</script>
+	</body>
+</html>
