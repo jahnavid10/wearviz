@@ -13,7 +13,7 @@ with open('sbj_'+subj+'.csv') as f:
 print(adata[0])
 
 # arbitrarily skipped datapoints and quantization, just to test
-skipSize = 10; quant = 10
+skipSize = 4; quant = 10
 
 acc = np.zeros([12,int(len(adata)/skipSize)+1])
 i=0

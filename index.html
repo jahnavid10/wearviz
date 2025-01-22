@@ -2,6 +2,8 @@
 <html>
 	<head>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+		<script src="https://leeoniya.github.io/uPlot/dist/uPlot.iife.min.js"></script>
+		<link rel="stylesheet" href="https://leeoniya.github.io/uPlot/dist/uPlot.min.css">
 		<script src="dta0.js"></script>
 		<style>
 
@@ -14,68 +16,50 @@
 	        <source type='video/mp4;codecs="avc1.42E01E, mp4a.40.2"' src="sbj_0.mp4"></source>
 	    </video>
       <canvas id="chart"></canvas>
+      <div id="chart1"></div>
     </div>
 
 		<script>
-    var frameNumber = 0, // start video at frame 0
-    // lower numbers = faster playback
-    playbackConst = 1000,
-    // select video element
-    vid = document.getElementById('v0');
-    var d, dd;
-    const canvas = document.getElementsByTagName('canvas')[0];
-    canvas.width  = 800;
-    canvas.height = 240;
 
-    function graph() {
-      const data = {
-		    labels: [...Array(raX.length).keys()],  // = [0,1,2,... ,n]
-		    datasets: [
-							{ label:'rax', data:raX, fill:false, borderColor:'red', borderWidth:0.7, pointRadius:0,},
-							{ label:'ray', data:raY, fill:false, borderColor:'green', borderWidth:0.7, pointRadius:0,},
-							{ label:'raz', data:raZ, fill:false, borderColor:'blue', borderWidth:0.7, pointRadius:0,},
-							{ label:'lax', data:laX, fill:false, borderColor:'red', borderWidth:0.7, pointRadius:0,},
-							{ label:'lay', data:laY, fill:false, borderColor:'green', borderWidth:0.7, pointRadius:0,},
-							{ label:'laz', data:laZ, fill:false, borderColor:'blue', borderWidth:0.7, pointRadius:0,},
-							{ label:'rlx', data:rlX, fill:false, borderColor:'red', borderWidth:0.7, pointRadius:0,},
-							{ label:'rly', data:rlY, fill:false, borderColor:'green', borderWidth:0.7, pointRadius:0,},
-							{ label:'rlz', data:rlZ, fill:false, borderColor:'blue', borderWidth:0.7, pointRadius:0,},
-							{ label:'llx', data:llX, fill:false, borderColor:'red', borderWidth:0.7, pointRadius:0,},
-							{ label:'lly', data:llY, fill:false, borderColor:'green', borderWidth:0.7, pointRadius:0,},
-							{ label:'llz', data:llZ, fill:false, borderColor:'blue', borderWidth:0.7, pointRadius:0,},
-						]
-		  };
-      const options = {
-							legend: { display: false },
-               tooltips: {
-                  enabled: false,
-                  mode: 'index',
-                  intersect: false
-               },
-               hover: {
-               	mode: 'index',
-                intersect: false
-               },
-               scales:{
-                  xAxes: [{
-                      display: false //this will remove all the x-axis grid lines
-                  }],
-                  yAxes: [{
-                  ticks: {
-                      display: false
-                  }
-                  }]
-               },
-               onClick: (e) => {
-                   const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
-                   console.log(2*canvasPosition.x/canvas.width)  // no idea why 2*
+		var vid = document.getElementById('v0');
 
-               }
-          };
-			const config = { type:'line', data:data, options:options };
-			var chart = new Chart('chart', config);
-    }
-    graph()
+    const data = [[...Array(raX.length).keys()], raX, raY, raZ, laX, laY, laZ, rlX, rlY, rlZ, llX, llY, llZ ];
+    let opts = {
+      id: "chart1",
+      width: window.innerWidth,
+      height: 400,
+      series: [
+        {},
+        { label:'rax',fill:false,stroke:'red', width:0.7, ticks:{show:false}},
+				{ label:'ray',fill:false,stroke:'green', width:0.7, ticks:{show:false}},
+				{ label:'raz',fill:false,stroke:'blue', width:0.7, ticks:{show:false}},
+				{ label:'lax',fill:false,stroke:'red', width:0.7, ticks:{show:false}},
+				{ label:'lay',fill:false,stroke:'green', width:0.7, ticks:{show:false}},
+				{ label:'laz',fill:false,stroke:'blue', width:0.7, ticks:{show:false}},
+				{ label:'rlx',fill:false,stroke:'red', width:0.7, ticks:{show:false}},
+				{ label:'rly',fill:false,stroke:'green', width:0.7, ticks:{show:false}},
+				{ label:'rlz',fill:false,stroke:'blue', width:0.7, ticks:{show:false}},
+				{ label:'llx',fill:false,stroke:'red', width:0.7, ticks:{show:false}},
+				{ label:'lly',fill:false,stroke:'green', width:0.7, ticks:{show:false}},
+				{ label:'llz',fill:false,stroke:'blue', width:0.7, ticks:{show:false}},
+      ],
+     	cursor: {
+				bind: {
+					mousedown: (u, targ, handler) => {
+						return e => {
+							vid.currentTime = Math.floor( (vid.duration*e.x) / window.innerWidth);
+						}
+					},
+				},
+			},
+      axes: [
+          {},
+          { scale: "readings", side: 1, grid: {show: true},},
+        ],
+      scales: { auto: false, "x": { time: false, } },
+    };
+    let uplot = new uPlot(opts, data, document.body);
+
 		</script>
 	</body>
 </html>
