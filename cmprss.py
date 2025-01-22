@@ -13,7 +13,7 @@ print(adata[0])
 # arbitrarily skipped datapoints and quantization, just to test
 skipSize = 5; quant = 10
 # create data structure:
-acc = np.zeros([12,int(len(adata)/skipSize)+1])
+acc = np.zeros([12,int(len(adata)/skipSize)+1])  # add one extra (might be left 0)
 i=0
 for row in adata[1:-1:skipSize]:
 	for sensor in range(0,12):
@@ -28,7 +28,7 @@ with open('dta'+subj+'.js',"w") as f:
 	i=0
 	for sensor in ["raX","raY","raZ","laX","laY","laZ","rlX","rlY","rlZ","llX","llY","llZ"]:
 		f.write("var "+sensor+"=[")
-		f.write(",".join( list( map (str, [int(x) for x in acc[i][:] ]) ) ) )
+		f.write(",".join( list( map (str, [int(x) for x in acc[i][:-2] ]) ) ) )  # -2: remove last potential 0*
 		f.write("];\n")
 		i+=1
 

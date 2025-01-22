@@ -1,12 +1,11 @@
 <!doctype html>
 <html>
 	<head>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 		<script src="https://leeoniya.github.io/uPlot/dist/uPlot.iife.min.js"></script>
 		<link rel="stylesheet" href="https://leeoniya.github.io/uPlot/dist/uPlot.min.css">
 		<script src="dta0.js"></script>
 		<style>
-			#chart1 {  }
+
 		</style>
 		<meta charset="utf-8" />
 	</head>
@@ -15,41 +14,30 @@
 			<video id="v0" tabindex="0", autobuffer preload width="320" height="240" controls>
 	        <source type='video/mp4;codecs="avc1.42E01E, mp4a.40.2"' src="s0.mp4"></source>
 	    </video>
-      <div id="chart1"></div>
     </div>
 		<script>
 		var vid = document.getElementById('v0'), width = window.innerWidth
     const data = [[...Array(raX.length).keys()], raX, raY, raZ, laX, laY, laZ, rlX, rlY, rlZ, llX, llY, llZ ];
     let opts = {
       id: "chart1",
-      width: window.innerWidth,
+      width: window.innerWidth-9,
       height: 400,
       series: [
-        {},
-        { label:'rax',fill:false,stroke:'red', width:0.7, ticks:{show:false}},
-				{ label:'ray',fill:false,stroke:'green', width:0.7, ticks:{show:false}},
-				{ label:'raz',fill:false,stroke:'blue', width:0.7, ticks:{show:false}},
-				{ label:'lax',fill:false,stroke:'red', width:0.7, ticks:{show:false}},
-				{ label:'lay',fill:false,stroke:'green', width:0.7, ticks:{show:false}},
-				{ label:'laz',fill:false,stroke:'blue', width:0.7, ticks:{show:false}},
-				{ label:'rlx',fill:false,stroke:'red', width:0.7, ticks:{show:false}},
-				{ label:'rly',fill:false,stroke:'green', width:0.7, ticks:{show:false}},
-				{ label:'rlz',fill:false,stroke:'blue', width:0.7, ticks:{show:false}},
-				{ label:'llx',fill:false,stroke:'red', width:0.7, ticks:{show:false}},
-				{ label:'lly',fill:false,stroke:'green', width:0.7, ticks:{show:false}},
-				{ label:'llz',fill:false,stroke:'blue', width:0.7, ticks:{show:false}},
+        { fill:false, ticks:{show:false}},
+        { label:'rax',stroke:'red'},{ label:'ray',stroke:'green'},{ label:'raz',stroke:'blue'},
+				{ label:'lax',stroke:'red'},{ label:'lay',stroke:'green'},{ label:'laz',stroke:'blue'},
+				{ label:'rlx',stroke:'red'},{ label:'rly',stroke:'green'},{ label:'rlz',stroke:'blue'},
+				{ label:'llx',stroke:'red'},{ label:'lly',stroke:'green'},{ label:'llz',stroke:'blue'},
       ],
-     	cursor: {
-				bind: {
+     	cursor: { bind: {
 					mousedown: (u, targ, handler) => {
 						return e => {
 							vid.currentTime = Math.floor( (vid.duration*e.x) / width );
 						}
-					},
-				},
+					}, },
 			},
       axes: [ {}, { scale: "readings", side: 1, grid: {show: true},}, ],
-      scales: { auto: false, "x": { time: false, } },
+      scales: { auto: false, "x": { time: false, }, y: { range: { max:160, min:-200,  }} },
       legend: { show: false, },
     };
     let uplot = new uPlot(opts, data, document.body);
