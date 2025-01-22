@@ -61,8 +61,15 @@
                       display: false //this will remove all the x-axis grid lines
                   }],
                   yAxes: [{
-                      display: false //this will remove all the x-axis grid lines
+                  ticks: {
+                      display: false
+                  }
                   }]
+               },
+               onClick: (e) => {
+                   const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+                   console.log(2*canvasPosition.x/canvas.width)  // no idea why 2*
+
                }
           };
 			const config = { type:'line', data:data, options:options };
