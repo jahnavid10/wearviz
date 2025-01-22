@@ -3,18 +3,16 @@ import sys,csv
 import numpy as np
 from subprocess import Popen, PIPE
 
-subj = str(0)
+subj = str(0)  # here we set the subject to compress
 
-# compres CSV file into a js-friendly low-res compression
+# compres CSV file into a js-friendly low-res js file
 with open('sbj_'+subj+'.csv') as f:
 	reader = csv.reader(f, delimiter = ',')
 	adata = list(reader)
-
 print(adata[0])
-
 # arbitrarily skipped datapoints and quantization, just to test
-skipSize = 4; quant = 10
-
+skipSize = 5; quant = 10
+# create data structure:
 acc = np.zeros([12,int(len(adata)/skipSize)+1])
 i=0
 for row in adata[1:-1:skipSize]:
@@ -25,7 +23,7 @@ for row in adata[1:-1:skipSize]:
 		elif sensor in [6,7,8]: acc[sensor][i] -= 2*offset  # left leg
 		elif sensor in [3,4,5]: acc[sensor][i] -= offset  # right leg
 	i+=1
-
+# write to file:
 with open('dta'+subj+'.js',"w") as f:
 	i=0
 	for sensor in ["raX","raY","raZ","laX","laY","laZ","rlX","rlY","rlZ","llX","llY","llZ"]:
@@ -34,11 +32,10 @@ with open('dta'+subj+'.js',"w") as f:
 		f.write("];\n")
 		i+=1
 
-exit(0)  # stop for now
-
 # compress the original raw video into a 2Hz low-res video for quick access:
 # e.g.: subj_0.mp4  is changed into s0.mp4
-s = "ffmpeg -i sbj_"+subj+".mp4 -vf \"scale=trunc(iw/25)*2:trunc(ih/25)*2\" -r 2 -map 0 -map -0:a s"+subj+".mp4"
+s = "ffmpeg -i sbj_"+subj+".mp4 -vf \"scale=trunc(iw/25)*2:trunc(ih/25)*2\" -r "+str(int(50/skipSize))+" -map 0 -map -0:a s"+subj+".mp4"
+print("executing:\n "+s)
 p = Popen([s], stdout=PIPE, stderr=PIPE, shell=True, executable="/bin/bash")
 stdout, stderr = p.communicate()
 outstr = stdout.decode('utf-8').strip('\n').strip('\r')

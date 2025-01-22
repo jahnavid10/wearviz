@@ -13,15 +13,13 @@
 	<body>
 		<div id="wrapper">
 			<video id="v0" tabindex="0", autobuffer preload width="320" height="240" controls>
-	        <source type='video/mp4;codecs="avc1.42E01E, mp4a.40.2"' src="sbj_0.mp4"></source>
+	        <source type='video/mp4;codecs="avc1.42E01E, mp4a.40.2"' src="s0.mp4"></source>
 	    </video>
-      <canvas id="chart"></canvas>
       <div id="chart1"></div>
     </div>
 
 		<script>
-
-		var vid = document.getElementById('v0');
+		var vid = document.getElementById('v0'), width = window.innerWidth
 
     const data = [[...Array(raX.length).keys()], raX, raY, raZ, laX, laY, laZ, rlX, rlY, rlZ, llX, llY, llZ ];
     let opts = {
@@ -47,15 +45,12 @@
 				bind: {
 					mousedown: (u, targ, handler) => {
 						return e => {
-							vid.currentTime = Math.floor( (vid.duration*e.x) / window.innerWidth);
+							vid.currentTime = Math.floor( (vid.duration*e.x) / width );
 						}
 					},
 				},
 			},
-      axes: [
-          {},
-          { scale: "readings", side: 1, grid: {show: true},},
-        ],
+      axes: [ {}, { scale: "readings", side: 1, grid: {show: true},}, ],
       scales: { auto: false, "x": { time: false, } },
     };
     let uplot = new uPlot(opts, data, document.body);
