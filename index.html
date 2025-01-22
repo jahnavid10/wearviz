@@ -1,10 +1,10 @@
 <!doctype html>
 <html>
 	<head>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+		<script src="dta0.js"></script>
 		<style>
+
 		</style>
 		<meta charset="utf-8" />
 	</head>
@@ -17,29 +17,58 @@
     </div>
 
 		<script>
-
     var frameNumber = 0, // start video at frame 0
     // lower numbers = faster playback
     playbackConst = 1000,
     // select video element
     vid = document.getElementById('v0');
+    var d, dd;
+    const canvas = document.getElementsByTagName('canvas')[0];
+    canvas.width  = 800;
+    canvas.height = 240;
 
-    function makeChart(data) {
-    	console.log(data)
-      var chart = new Chart('chart', {
-          type: 'line',
-          data: data,
-          options: {
-              scales: {
-                  x: {
-                      type: 'timeseries',
-                  }
-              }
-          }
-      });
+    function graph() {
+      const data = {
+		    labels: [...Array(raX.length).keys()],  // = [0,1,2,... ,n]
+		    datasets: [
+							{ label:'rax', data:raX, fill:false, borderColor:'red', borderWidth:0.7, pointRadius:0,},
+							{ label:'ray', data:raY, fill:false, borderColor:'green', borderWidth:0.7, pointRadius:0,},
+							{ label:'raz', data:raZ, fill:false, borderColor:'blue', borderWidth:0.7, pointRadius:0,},
+							{ label:'lax', data:laX, fill:false, borderColor:'red', borderWidth:0.7, pointRadius:0,},
+							{ label:'lay', data:laY, fill:false, borderColor:'green', borderWidth:0.7, pointRadius:0,},
+							{ label:'laz', data:laZ, fill:false, borderColor:'blue', borderWidth:0.7, pointRadius:0,},
+							{ label:'rlx', data:rlX, fill:false, borderColor:'red', borderWidth:0.7, pointRadius:0,},
+							{ label:'rly', data:rlY, fill:false, borderColor:'green', borderWidth:0.7, pointRadius:0,},
+							{ label:'rlz', data:rlZ, fill:false, borderColor:'blue', borderWidth:0.7, pointRadius:0,},
+							{ label:'llx', data:llX, fill:false, borderColor:'red', borderWidth:0.7, pointRadius:0,},
+							{ label:'lly', data:llY, fill:false, borderColor:'green', borderWidth:0.7, pointRadius:0,},
+							{ label:'llz', data:llZ, fill:false, borderColor:'blue', borderWidth:0.7, pointRadius:0,},
+						]
+		  };
+      const options = {
+							legend: { display: false },
+               tooltips: {
+                  enabled: false,
+                  mode: 'index',
+                  intersect: false
+               },
+               hover: {
+               	mode: 'index',
+                intersect: false
+               },
+               scales:{
+                  xAxes: [{
+                      display: false //this will remove all the x-axis grid lines
+                  }],
+                  yAxes: [{
+                      display: false //this will remove all the x-axis grid lines
+                  }]
+               }
+          };
+			const config = { type:'line', data:data, options:options };
+			var chart = new Chart('chart', config);
     }
-    // Request data using D3
-    d3.csv("./sbj_0.csv").then(makeChart);
+    graph()
 		</script>
 	</body>
 </html>
