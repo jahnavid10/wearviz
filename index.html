@@ -6,7 +6,7 @@
 		<link rel="stylesheet" href="https://leeoniya.github.io/uPlot/dist/uPlot.min.css">
 		<script src="dta0.js"></script>
 		<style>
-
+			#chart1 {  }
 		</style>
 		<meta charset="utf-8" />
 	</head>
@@ -17,10 +17,8 @@
 	    </video>
       <div id="chart1"></div>
     </div>
-
 		<script>
 		var vid = document.getElementById('v0'), width = window.innerWidth
-
     const data = [[...Array(raX.length).keys()], raX, raY, raZ, laX, laY, laZ, rlX, rlY, rlZ, llX, llY, llZ ];
     let opts = {
       id: "chart1",
@@ -52,9 +50,9 @@
 			},
       axes: [ {}, { scale: "readings", side: 1, grid: {show: true},}, ],
       scales: { auto: false, "x": { time: false, } },
+      legend: { show: false, },
     };
     let uplot = new uPlot(opts, data, document.body);
-
 		</script>
 	</body>
 </html>
