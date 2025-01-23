@@ -48,6 +48,8 @@ with open('dta'+subj+'.js',"w") as f:
 print(indx)
 print(clss)
 
+exit(0)  # remove this for the video:
+
 # Example to get 3rd person view video and obtain skeleton:
 tpvmovfile = '/Users/kvl/sciebo/Projects/trimmed_WEAR_clip/sbj_18_tpv_25f.mp4'  #
 vidcap_movtpv = cv2.VideoCapture(tpvmovfile)
@@ -62,7 +64,6 @@ for i in range(0,int((10)*duration)):
     print(results.pose_landmarks)
     print("\n\n")
 
-exit(0)  # remove this for the video:
 
 # compress the original raw video into a 2Hz low-res video for quick access:
 # e.g.: subj_0.mp4  is changed into s0.mp4
