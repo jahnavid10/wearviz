@@ -67,8 +67,16 @@
 		}
 		</script>
 		<script>
-			var grph = document.getElementById('chart1');
-			grph.style.border="solid"
-    </script>
+			var grph = document.getElementById('chart1'); grph.style.border="solid"
+			var canvas = document.getElementsByTagName('canvas')[0]
+			var context = canvas.getContext("2d");
+			context.fillStyle = "black";
+			context.font = "24px Arial";
+			context.textAlign = 'left';
+			context.fillText("right hand", 7, 10);
+			context.fillText("left hand", 7, 190);
+			context.fillText("right ankle", 7, 370);
+			context.fillText("left ankle", 7, 550);
+		</script>
 	</body>
 </html>
