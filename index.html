@@ -5,19 +5,38 @@
 		<link rel="stylesheet" href="https://leeoniya.github.io/uPlot/dist/uPlot.min.css">
 		<script src="dta0.js"></script>
 		<style>
-
-		</style>
+		  html {font-family: Arial, Helvetica, sans-serif; }
+			h1 { font-size: 14pt;}
+			.toprow:after  {  content: ""; display: table; clear: both; }
+			.topblk { float: left; border:solid;padding:4px;margin-bottom:4px;margin-right:4px;font-size:12px;height:180px; }
+			</style>
 		<meta charset="utf-8" />
 	</head>
 	<body>
-		<div id="wrapper">
-			<video id="v0" tabindex="0", autobuffer preload width="320" height="240" controls>
-	        <source type='video/mp4;codecs="avc1.42E01E, mp4a.40.2"' src="s0.mp4"></source>
-	    </video>
-    </div>
-		<script>
+		<h1>Subject_ID:00</h1>
+		  <div class="toprow">
+				<div class="topblk">
+					<video id="v0" tabindex="0", autobuffer preload width="320" height="180" controls>
+			        <source type='video/mp4;codecs="avc1.42E01E, mp4a.40.2"' src="s0.mp4"></source>
+			    </video>
+				</div>
+				<div class="topblk">
+					Gender: male<br/>Hand: right<br/>Age:≥40<br/>
+					Height: 180-189 cm.<br/>Weight: 70-79 kg.
+					<hr/>Private Workouts:<br/>Cycling<br/>Frequency: 5
+					<hr/>Known Activities: 5,<br/> Regular Activities: 0
+				</div>
+				<div class="topblk">Session 1<hr/>Duration: 16:33:30<hr/>Activities: 7<hr/>Month: mid-Oct.<br/>morning<hr/> sunny, ≈10◦C<hr/> Location_ID: 1</div>
+				<div class="topblk">Session 2<hr/>Duration: 11:55:00<hr/>Activities: 6<hr/>Month: mid-Oct.<br/>afternoon<hr/> partly-cloudy, ≈10◦C<hr/> Location_ID: 1</div>
+				<div class="topblk">Session 3<hr/>Duration: 18:06:00<hr/>Activities: 7<hr/>Month: late-Oct.<br/>afternoon<hr/> partly-cloudy, ≈20◦C<hr/> Location_ID: 1</div>
+				<div class="topblk">Data Files:<hr/>
+					<a href="https://uni-siegen.sciebo.de/s/enHPo7HwP8RccAe/download?path=%2Fraw%2Fcamera&files=sbj_0.mp4">Video [7Gb]</a><br/>
+					<a href="https://uni-siegen.sciebo.de/s/enHPo7HwP8RccAe/download?path=%2Fraw%2Finertial%2F50hz&files=sbj_0.csv">IMU sensors [33Mb]</a></div>
+				</div>
+			</div>
+    <script>
 		var vid = document.getElementById('v0'), width = window.innerWidth
-    const data = [[...Array(raX.length).keys()], raX, raY, raZ, laX, laY, laZ, rlX, rlY, rlZ, llX, llY, llZ ];
+		const data = [[...Array(raX.length).keys()], raX, raY, raZ, laX, laY, laZ, rlX, rlY, rlZ, llX, llY, llZ ];
     let opts = {
       id: "chart1",
       width: window.innerWidth-9,
@@ -31,9 +50,7 @@
       ],
      	cursor: { bind: {
 					mousedown: (u, targ, handler) => {
-						return e => {
-							vid.currentTime = Math.floor( (vid.duration*e.x) / width );
-						}
+						return e => { vid.currentTime = Math.floor( (vid.duration*e.x) / width );}
 					}, },
 			},
       axes: [ {}, { scale: "readings", side: 1, grid: {show: true},}, ],
@@ -42,5 +59,9 @@
     };
     let uplot = new uPlot(opts, data, document.body);
 		</script>
+		<script>
+			var grph = document.getElementById('chart1');
+			grph.style.border="solid"
+    </script>
 	</body>
 </html>
