@@ -57,7 +57,15 @@
       scales: { auto: false, "x": { time: false, }, y: { range: { max:160, min:-200,  }} },
       legend: { show: false, },
     };
-    let uplot = new uPlot(opts, data, document.body);
+    let uplot = vid.onseeking = new uPlot(opts, data, document.body);
+    vid.onplay = function() {
+			pos = Math.floor((vid.currentTime / vid.duration)*27700)
+			uplot.setCursor({
+        left: uplot.valToPos(uplot.data[0][pos], 'x'),
+        top:  uplot.valToPos(uplot.data[1][pos], 'y'),
+      });
+		}
+
 		</script>
 		<script>
 			var grph = document.getElementById('chart1');
