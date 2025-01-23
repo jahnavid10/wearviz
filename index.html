@@ -40,6 +40,8 @@
 		function bgAnns() {
 			function drawBg(u) {
 				let { left, top, width, height } = u.bbox;
+				let { scale } = u.series[0];
+				console.log(u.series)
 				u.ctx.save();
 				u.ctx.fillStyle = 'black';
 				u.ctx.font = "24px Arial";
@@ -47,11 +49,16 @@
 				u.ctx.fillText("right hand", 7, 24); u.ctx.fillText("left hand", 7, 200);
 				u.ctx.fillText("right ankle", 7, 380); u.ctx.fillText("left ankle", 7, 560);
 
-				u.ctx.font = "14px Arial";
-				u.ctx.fillStyle = '#FFFFB0';
-				u.ctx.fillRect(440, top, 150, height+20);  // left, width for each annotation
-				u.ctx.fillStyle = 'black';
-				u.ctx.fillText("jogging (rotating arms)", 440, 707)  // annotation
+					console.log(u.valToPos(9, scale, true))
+					console.log(u.valToPos(993, scale, true))
+					startPos = u.valToPos(3937, scale, true)
+					width = u.valToPos(4903, scale, true)-startPos
+					u.ctx.font = "14px Arial";
+					u.ctx.fillStyle = '#FFFFB0';
+					u.ctx.fillRect(startPos, top, width, height+20);  // left, width for each annotation
+					u.ctx.fillStyle = 'black';
+					u.ctx.fillText("jogging (rotating arms)", startPos, 707)  // annotation
+
 				u.ctx.restore();
 			}
 			return { hooks: { drawClear: drawBg } };  // return hook
