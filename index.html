@@ -9,11 +9,12 @@
 			h1 { font-size: 14pt;}
 			.toprow:after  {  content: ""; display: table; clear: both; }
 			.topblk { float: left; border:solid;padding:4px;margin-bottom:4px;margin-right:4px;font-size:12px;height:180px; }
+			#subjsel { width:70px; }
 			</style>
 		<meta charset="utf-8" />
 	</head>
 	<body>
-		<h1>Subject_ID: <select name="subj" id="subj"><option value="00">00</option></select></h1>
+		<h1>Subject_ID: <select name="subjsel" id="subjsel"><option value="00">00</option></select></h1>
 		  <div class="toprow">
 				<div class="topblk">
 					<video id="v0" tabindex="0", autobuffer preload width="320" height="180" controls>
@@ -50,6 +51,30 @@
 				ready: u => {
 					xRange = u.scales.x.max - u.scales.x.min;
 					let rect = u.over.getBoundingClientRect();
+					/*over.addEventListener("mousedown", e => {  // wheel drag pan
+						if (e.button == 1) {
+							e.preventDefault();
+							let left0 = e.clientX;
+							let scXMin0 = u.scales.x.min;
+							let scXMax0 = u.scales.x.max;
+							let xUnitsPerPx = u.posToVal(1, 'x') - u.posToVal(0, 'x');
+							function onmove(e) {
+								e.preventDefault();
+								let left1 = e.clientX;
+								let dx = xUnitsPerPx * (left1 - left0);
+								u.setScale('x', {
+									min: scXMin0 - dx,
+									max: scXMax0 - dx,
+								});
+							}
+							function onup(e) {
+								document.removeEventListener("mousemove", onmove);
+								document.removeEventListener("mouseup", onup);
+							}
+							document.addEventListener("mousemove", onmove);
+							document.addEventListener("mouseup", onup);
+						}
+						});*/
 					u.over.addEventListener("wheel", e => {  // wheel scroll zoom
 						e.preventDefault();
 						let oxRange = u.scales.x.max - u.scales.x.min;
@@ -80,7 +105,7 @@
 						else u.ctx.fillStyle = '#F0F0FF';
 						u.ctx.fillRect(startPos, top, width, height+20);  // left, width for each annotation
 						u.ctx.fillStyle = 'black';
-						u.ctx.fillText(lbl[i], startPos, 707)  // annotation
+						u.ctx.fillText(lbl[i], startPos+width/2, 707)  // annotation
 					}
 				}
 				u.ctx.font = "24px Arial"; u.ctx.textAlign = 'left';
