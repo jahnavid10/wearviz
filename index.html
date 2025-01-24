@@ -81,7 +81,7 @@
       ],
      	cursor: { bind: {  // capture mouse down
 					mousedown: (u, targ, handler) => {
-						return e => { vid.currentTime = Math.floor( (vid.duration*e.offsetX) / (u.width-50) );}  // TODO: Get better div width
+						return e => { vid.currentTime = Math.floor( (vid.duration*e.offsetX) / (u.width-50) ); vid.play()}  // TODO: Get better div width
 					}, }, y : false, // hide horizontal crosshair
 			},
 			plugins: [ bgAnns(),],
