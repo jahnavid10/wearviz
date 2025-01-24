@@ -37,6 +37,37 @@
     <script>
 		var vid = document.getElementById('v0'), width = window.innerWidth
 		const data = [[...Array(raX.length).keys()], raX, raY, raZ, laX, laY, laZ, rlX, rlY, rlZ, llX, llY, llZ ];
+		function wheelZoomPlugin(opts) {
+			let factor = opts.factor || 0.75;
+			let xMin, xMax, xRange, yRange;
+			function clamp(nRange, nMin, nMax, fRange, fMin, fMax) {
+				if (nRange > fRange) { nMin = fMin; nMax = fMax; }
+				else if (nMin < fMin) { nMin = fMin; nMax = fMin + nRange; }
+				else if (nMax > fMax) { nMax = fMax; nMin = fMax - nRange; }
+				return [nMin, nMax];
+			}
+			return {
+				hooks: {
+					ready: u => {
+						xRange = u.scales.x.max - u.scales.x.min;
+						let rect = u.over.getBoundingClientRect();
+						u.over.addEventListener("wheel", e => {  // wheel scroll zoom
+							e.preventDefault();
+							let {left, top} = u.cursor;
+							let leftPct = left/rect.width;
+							let btmPct = 1 - top/rect.height;
+							let oxRange = u.scales.x.max - u.scales.x.min;
+							let nxRange = e.deltaY < 0 ? oxRange * factor : oxRange / factor;
+							let nxMin = u.posToVal(left, "x") - leftPct * nxRange;
+							let nxMax = nxMin + nxRange;
+							[nxMin, nxMax] = clamp(nxRange, nxMin, nxMax, xRange, xMin, xMax);
+							u.batch(() => { u.setScale("x", { min: nxMin, max: nxMax, });
+							});
+						});
+					}
+				}
+			};
+		}
 		function bgAnns() {
 			function drawBg(u) {
 				let { left, top, width, height } = u.bbox;
@@ -84,7 +115,7 @@
 						return e => { vid.currentTime = Math.floor( (vid.duration*e.offsetX) / (u.width-50) ); vid.play()}  // TODO: Get better div width
 					}, }, y : false, // hide horizontal crosshair
 			},
-			plugins: [ bgAnns(),],
+			plugins: [ bgAnns(), wheelZoomPlugin({factor: 0.75})],
       axes: [ {}, { scale: "readings", side: 1, grid: {show: true},}, ],
       scales: { auto: false, "x": { time: false, }, y: { range: { max:160, min:-200,  }} },
       legend: { show: false, },
