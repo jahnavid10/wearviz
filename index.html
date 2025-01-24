@@ -43,22 +43,27 @@
 				let { scale } = u.series[0];
 				console.log(u.series)
 				u.ctx.save();
-				u.ctx.fillStyle = 'black';
+				pos = [0, 9, 993, 1163, 1748, 1782, 2397, 2603, 3662, 3937, 4903, 4928, 5318, 5393, 6414, 6507, 7081, 7107, 7477, 7515, 7885, 7995, 8327, 8414, 8710, 8848, 9437, 9569, 9892, 9940, 10459, 10493, 11544, 11611, 12420, 12544, 13079, 13309, 14095, 14370, 15132, 15313, 17046, 17144, 17511, 17824, 18273, 18622, 18942, 19221, 20364, 20639, 21302, 21428, 21982, 22318, 22719, 22874, 23223, 23413, 23739, 24032, 25863, 26387, 27347, 27576, 27855]
+				lbl = ['null', 'jogging', 'null', 'jogging', 'null', 'jogging', 'null', 'stretching (triceps)', 'null', 'jogging (rotating arms)', 'null', 'jogging (rotating arms)', 'null', 'stretching (lunging)', 'null', 'jogging (skipping)', 'null', 'jogging (skipping)', 'null', 'jogging (skipping)', 'null', 'push-ups', 'null', 'push-ups', 'null', 'push-ups (complex)', 'null', 'push-ups (complex)', 'null', 'jogging (sidesteps)', 'null', 'jogging (sidesteps)', 'null', 'stretching (shoulders)', 'null', 'sit-ups', 'null', 'stretching (hamstrings)', 'null', 'sit-ups (complex)', 'null', 'lunges', 'null', 'burpees', 'null', 'burpees', 'null', 'burpees', 'null', 'stretching (lumbar rotation)', 'null', 'jogging (butt-kicks)', 'null', 'jogging (butt-kicks)', 'null', 'bench-dips', 'null', 'bench-dips', 'null', 'bench-dips', 'null', 'lunges (complex)', 'null', 'sit-ups', 'null', 'push-ups', 'null']
+				u.ctx.font = "14px Arial";
+				for (var i=0; i<pos.length-1; i++) {
+					if (lbl[i]!='null') {
+						startPos = u.valToPos(pos[i], scale, true)
+						width = u.valToPos(pos[i+1], scale, true)-startPos
+						if (lbl[i].includes('jog')) u.ctx.fillStyle = '#FFFFD0';
+						else if (lbl[i].includes('stretch')) u.ctx.fillStyle = '#D0FFD0';
+						else if (lbl[i].includes('burp')) u.ctx.fillStyle = '#FFD0D0';
+						else if (lbl[i].includes('lung')) u.ctx.fillStyle = '#FFD0FF';
+						else u.ctx.fillStyle = '#D0D0FF';
+						u.ctx.fillRect(startPos, top, width, height+20);  // left, width for each annotation
+						u.ctx.fillStyle = 'black';
+						u.ctx.fillText(lbl[i], startPos, 707)  // annotation
+					}
+				}
 				u.ctx.font = "24px Arial";
 				u.ctx.textAlign = 'left';
 				u.ctx.fillText("right hand", 7, 24); u.ctx.fillText("left hand", 7, 200);
 				u.ctx.fillText("right ankle", 7, 380); u.ctx.fillText("left ankle", 7, 560);
-
-					console.log(u.valToPos(9, scale, true))
-					console.log(u.valToPos(993, scale, true))
-					startPos = u.valToPos(3937, scale, true)
-					width = u.valToPos(4903, scale, true)-startPos
-					u.ctx.font = "14px Arial";
-					u.ctx.fillStyle = '#FFFFB0';
-					u.ctx.fillRect(startPos, top, width, height+20);  // left, width for each annotation
-					u.ctx.fillStyle = 'black';
-					u.ctx.fillText("jogging (rotating arms)", startPos, 707)  // annotation
-
 				u.ctx.restore();
 			}
 			return { hooks: { drawClear: drawBg } };  // return hook
