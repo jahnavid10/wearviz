@@ -9,7 +9,7 @@
 			h1 { font-size: 14pt;}
 			.toprow:after  {  content: ""; display: table; clear: both; }
 			.topblk { float: left; border:solid;padding:4px;margin-bottom:4px;margin-right:4px;font-size:12px;height:180px; }
-			#subjsel { width:70px; }
+			#subjsel { font-size:18px; }
 			</style>
 		<meta charset="utf-8" />
 	</head>
@@ -93,7 +93,7 @@
 				let { top, height } = u.bbox;
 				let { scale } = u.series[0];
 				u.ctx.save();
-				u.ctx.font = "14px Arial";
+				u.ctx.font = "14px Arial"; u.ctx.textAlign = 'center';
 				for (var i=0; i<pos.length-1; i++) {
 					if (lbl[i]!='null') {
 						startPos = u.valToPos(pos[i], scale, true)
@@ -128,7 +128,8 @@
       ],
      	cursor: { bind: {  // capture mouse down
 					mousedown: (u, targ, handler) => {
-						return e => { vid.currentTime = Math.floor( (vid.duration*e.offsetX) / (u.width-50) ); vid.play()}  // TODO: Get better div width
+						return e => { vid.currentTime = Math.floor( (vid.duration*e.offsetX) / (u.width-50) ); vid.play()}
+						// TODO: get data position !!!
 					}, }, y : false, // hide horizontal crosshair
 			},
 			plugins: [ bgAnns(), wheelZoomPlugin({factor: 0.95})],
@@ -138,10 +139,11 @@
     };
     let uplot = vid.onseeking = new uPlot(opts, data, document.body);
     // change cursor in uPlot when controlling video:
-    vid.onplay = vid.onseeking = function() {
-			pos = Math.floor((vid.currentTime / vid.duration)*data[0].length)  // this needs to be fixed for zooming
+    vid.ontimeupdate = vid.onplay = vid.onseeking = function() {
+			pos = Math.floor((vid.currentTime / vid.duration)*data[0].length)  // this works
 			uplot.setCursor({ left: uplot.valToPos(uplot.data[0][pos], 'x'), });
 		}
+    console.log(vid)
 		</script>
 		<script>
 			var grph = document.getElementById('chart1'); grph.style.border="solid"
