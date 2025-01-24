@@ -46,26 +46,21 @@
 				else if (nMax > fMax) { nMax = fMax; nMin = fMax - nRange; }
 				return [nMin, nMax];
 			}
-			return {
-				hooks: {
-					ready: u => {
-						xRange = u.scales.x.max - u.scales.x.min;
-						let rect = u.over.getBoundingClientRect();
-						u.over.addEventListener("wheel", e => {  // wheel scroll zoom
-							e.preventDefault();
-							let {left, top} = u.cursor;
-							let leftPct = left/rect.width;
-							let btmPct = 1 - top/rect.height;
-							let oxRange = u.scales.x.max - u.scales.x.min;
-							let nxRange = e.deltaY < 0 ? oxRange * factor : oxRange / factor;
-							let nxMin = u.posToVal(left, "x") - leftPct * nxRange;
-							let nxMax = nxMin + nxRange;
-							[nxMin, nxMax] = clamp(nxRange, nxMin, nxMax, xRange, xMin, xMax);
-							u.batch(() => { u.setScale("x", { min: nxMin, max: nxMax, });
-							});
+			return { hooks: {
+				ready: u => {
+					xRange = u.scales.x.max - u.scales.x.min;
+					let rect = u.over.getBoundingClientRect();
+					u.over.addEventListener("wheel", e => {  // wheel scroll zoom
+						e.preventDefault();
+						let oxRange = u.scales.x.max - u.scales.x.min;
+						let nxRange = e.deltaY < 0 ? oxRange * factor : oxRange / factor;
+						let nxMin = u.posToVal(u.cursor.left, "x") - (u.cursor.left/rect.width) * nxRange;
+						let nxMax = nxMin + nxRange;
+						[nxMin, nxMax] = clamp(nxRange, nxMin, nxMax, xRange, xMin, xMax);
+						u.batch(() => { u.setScale("x", { min: nxMin, max: nxMax, });
 						});
-					}
-				}
+					});
+				} }
 			};
 		}
 		function bgAnns() {
