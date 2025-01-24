@@ -65,17 +65,16 @@
 		}
 		function bgAnns() {
 			function drawBg(u) {
-				let { left, top, width, height } = u.bbox;
+				let { top, height } = u.bbox;
 				let { scale } = u.series[0];
 				u.ctx.save();
-				// prototype / this should be read from the js file
 				u.ctx.font = "14px Arial";
 				for (var i=0; i<pos.length-1; i++) {
 					if (lbl[i]!='null') {
 						startPos = u.valToPos(pos[i], scale, true)
 						width = u.valToPos(pos[i+1], scale, true)-startPos
-						if (lbl[i].includes('jog')) u.ctx.fillStyle = '#FFFFE0';
-						else if (lbl[i].includes('stretch')) u.ctx.fillStyle = '#F0FFE0';
+						if (lbl[i].includes('stret')) u.ctx.fillStyle = '#F0FFE0';
+						else if (lbl[i].includes('jogg')) u.ctx.fillStyle = '#FFFFE0';
 						else if (lbl[i].includes('burp')) u.ctx.fillStyle = '#FFF0F0';
 						else if (lbl[i].includes('lung')) u.ctx.fillStyle = '#FFF0FF';
 						else u.ctx.fillStyle = '#F0F0FF';
@@ -84,8 +83,7 @@
 						u.ctx.fillText(lbl[i], startPos, 707)  // annotation
 					}
 				}
-				u.ctx.font = "24px Arial";
-				u.ctx.textAlign = 'left';
+				u.ctx.font = "24px Arial"; u.ctx.textAlign = 'left';
 				u.ctx.fillText("right hand", 7, 24); u.ctx.fillText("left hand", 7, 200);
 				u.ctx.fillText("right ankle", 7, 380); u.ctx.fillText("left ankle", 7, 560);
 				u.ctx.restore();
@@ -108,17 +106,16 @@
 						return e => { vid.currentTime = Math.floor( (vid.duration*e.offsetX) / (u.width-50) ); vid.play()}  // TODO: Get better div width
 					}, }, y : false, // hide horizontal crosshair
 			},
-			plugins: [ bgAnns(), wheelZoomPlugin({factor: 0.75})],
+			plugins: [ bgAnns(), wheelZoomPlugin({factor: 0.95})],
       axes: [ {}, { scale: "readings", side: 1, grid: {show: true},}, ],
       scales: { auto: false, "x": { time: false, }, y: { range: { max:160, min:-200,  }} },
       legend: { show: false, },
     };
     let uplot = vid.onseeking = new uPlot(opts, data, document.body);
+    // change cursor in uPlot when controlling video:
     vid.onplay = vid.onseeking = function() {
-			pos = Math.floor((vid.currentTime / vid.duration)*data[0].length)
-			uplot.setCursor({
-        left: uplot.valToPos(uplot.data[0][pos], 'x'), top:  uplot.valToPos(uplot.data[1][pos], 'y'),
-      });
+			pos = Math.floor((vid.currentTime / vid.duration)*data[0].length)  // this needs to be fixed for zooming
+			uplot.setCursor({ left: uplot.valToPos(uplot.data[0][pos], 'x'), });
 		}
 		</script>
 		<script>
