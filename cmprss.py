@@ -18,7 +18,7 @@ with open('sbj_'+subj+'.csv') as f:
 	adata = list(reader)
 print(adata[0])
 # arbitrarily skipped datapoints and quantization, just to test
-skipSize = 5; quant = 10
+skipSize = 1; quant = 10
 # create data structure:
 acc = np.zeros([12,int(len(adata)/skipSize)+1])  # add one extra (might be left 0)
 i=0
@@ -45,8 +45,12 @@ with open('dta'+subj+'.js',"w") as f:
 		f.write(",".join( list( map (str, [int(x) for x in acc[i][:-2] ]) ) ) )  # -2: remove last potential 0*
 		f.write("];\n")
 		i+=1
-print(indx)
-print(clss)
+	f.write("var pos=[")
+	f.write(",".join( list( map (str, indx) ) ) )
+	f.write("];\n")
+	f.write("var lbl=['")
+	f.write("','".join( clss ) )
+	f.write("'];\n")
 
 exit(0)  # remove this for the video:
 

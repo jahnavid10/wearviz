@@ -72,10 +72,8 @@
 			function drawBg(u) {
 				let { left, top, width, height } = u.bbox;
 				let { scale } = u.series[0];
-				console.log(u.series)
 				u.ctx.save();
-				pos = [0, 9, 993, 1163, 1748, 1782, 2397, 2603, 3662, 3937, 4903, 4928, 5318, 5393, 6414, 6507, 7081, 7107, 7477, 7515, 7885, 7995, 8327, 8414, 8710, 8848, 9437, 9569, 9892, 9940, 10459, 10493, 11544, 11611, 12420, 12544, 13079, 13309, 14095, 14370, 15132, 15313, 17046, 17144, 17511, 17824, 18273, 18622, 18942, 19221, 20364, 20639, 21302, 21428, 21982, 22318, 22719, 22874, 23223, 23413, 23739, 24032, 25863, 26387, 27347, 27576, 27855]
-				lbl = ['null', 'jogging', 'null', 'jogging', 'null', 'jogging', 'null', 'stretching (triceps)', 'null', 'jogging (rotating arms)', 'null', 'jogging (rotating arms)', 'null', 'stretching (lunging)', 'null', 'jogging (skipping)', 'null', 'jogging (skipping)', 'null', 'jogging (skipping)', 'null', 'push-ups', 'null', 'push-ups', 'null', 'push-ups (complex)', 'null', 'push-ups (complex)', 'null', 'jogging (sidesteps)', 'null', 'jogging (sidesteps)', 'null', 'stretching (shoulders)', 'null', 'sit-ups', 'null', 'stretching (hamstrings)', 'null', 'sit-ups (complex)', 'null', 'lunges', 'null', 'burpees', 'null', 'burpees', 'null', 'burpees', 'null', 'stretching (lumbar rotation)', 'null', 'jogging (butt-kicks)', 'null', 'jogging (butt-kicks)', 'null', 'bench-dips', 'null', 'bench-dips', 'null', 'bench-dips', 'null', 'lunges (complex)', 'null', 'sit-ups', 'null', 'push-ups', 'null']
+				// prototype / this should be read from the js file
 				u.ctx.font = "14px Arial";
 				for (var i=0; i<pos.length-1; i++) {
 					if (lbl[i]!='null') {
