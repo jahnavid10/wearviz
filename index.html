@@ -96,7 +96,10 @@
       ],
      	cursor: { bind: {  // capture mouse down
 					mousedown: (u, targ, handler) => {
-						return e => { vid.currentTime = Math.floor( (vid.duration*e.offsetX) / (u.width-50) ); vid.play()}
+						return e => {
+							vid.currentTime = Math.floor( (vid.duration*u.cursor.idx) / (data[0].length) );
+							vid.play();  // start playing the video when clicked in the plot
+						}
 						// TODO: get data position !!!
 					}, }, y : false, // hide horizontal crosshair
 			},
