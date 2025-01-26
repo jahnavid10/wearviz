@@ -19,6 +19,7 @@ function loadScript(url, callback) {
 	script.onload = callback;
 	head.appendChild(script);
 }
+
 var plotData = function () {
 	var vid = document.getElementById("v0"),
 		width = window.innerWidth;
@@ -148,8 +149,16 @@ var plotData = function () {
 				pos = Math.floor((vid.currentTime / vid.duration) * data[0].length); // this works
 				uplot.setCursor({ left: uplot.valToPos(uplot.data[0][pos], "x") });
 			};
+	// create a border around the graph:
 	var grph = document.getElementById("chart1");
 	grph.style.border = "solid";
+	// display tip at the bottom:
+	const node = document.createElement("p");
+	const txtnode = document.createTextNode(
+		"Click on the plot or video to play, use the scroll wheel to zoom in or out.",
+	);
+	node.appendChild(txtnode);
+	document.body.appendChild(node);
 };
 
 loadScript("dta" + document.getElementById("subjsel").value + ".js", plotData);
