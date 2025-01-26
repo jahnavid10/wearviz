@@ -3,7 +3,7 @@
 	<head>
 		<script src="https://leeoniya.github.io/uPlot/dist/uPlot.iife.min.js"></script>
 		<link rel="stylesheet" href="https://leeoniya.github.io/uPlot/dist/uPlot.min.css">
-		<script src="dta0.js"></script>
+			<!--<script src="dta0.js"></script>-->
 		<style>
 		  html {font-family: Arial, Helvetica, sans-serif; }
 			h1 { font-size: 14pt;}
@@ -14,13 +14,11 @@
 		<meta charset="utf-8" />
 	</head>
 	<body>
-		<h1>Subject_ID: <select name="subjsel" id="subjsel"><option value="00">00</option></select></h1>
+		<h1>Subject_ID: <input id="subjsel" type="number" min="0" max="23" step="1" value="0" onkeydown="return false"/></h1>
 		  <div class="toprow">
-				<div class="topblk">
-					<video id="v0" tabindex="0", autobuffer preload width="320" height="180" controls>
-			        <source type='video/mp4;codecs="avc1.42E01E, mp4a.40.2"' src="s0.mp4"></source>
-			    </video>
-				</div>
+				<div class="topblk"><video id="v0" tabindex="0", autobuffer preload width="320" height="180" controls>
+			        <source id="vid" type='video/mp4;codecs="avc1.42E01E, mp4a.40.2"' src="s0.mp4"></source>
+			  </video></div>
 				<div class="topblk">
 					Gender: male<br/>Hand: right<br/>Age:≥40<br/>
 					Height: 180-189 cm.<br/>Weight: 70-79 kg.
