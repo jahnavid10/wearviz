@@ -5,7 +5,7 @@ from subprocess import Popen, PIPE
 import mediapipe as mp
 import cv2
 
-subj = str(0)  # here we set the subject to compress
+subj = str(4)  # here we set the subject to compress
 
 # start up mediapipe:
 mp_drawing = mp.solutions.drawing_utils # Drawing helpers
@@ -52,27 +52,27 @@ with open('dta'+subj+'.js',"w") as f:
 	f.write("','".join( clss ) )
 	f.write("'];\n")
 
-exit(0)  # remove this for the video:
+#exit(0)  # remove this for the video:
 
 # Example to get 3rd person view video and obtain skeleton:
-tpvmovfile = '/Users/kvl/sciebo/Projects/trimmed_WEAR_clip/sbj_18_tpv_25f.mp4'  #
-vidcap_movtpv = cv2.VideoCapture(tpvmovfile)
-duration = (60*37)+21
-for i in range(0,int((10)*duration)):
-    success,image_movtpv = vidcap_movtpv.read()
+#tpvmovfile = '/Users/kvl/sciebo/Projects/trimmed_WEAR_clip/sbj_18_tpv_25f.mp4'  #
+#vidcap_movtpv = cv2.VideoCapture(tpvmovfile)
+#duration = (60*37)+21
+#for i in range(0,int((10)*duration)):
+#    success,image_movtpv = vidcap_movtpv.read()
     # To improve performance, optionally mark the image as not writeable to pass by reference:
     #image_movtpv.flags.writeable = True
     # detect pose in third person view video frame:
     #image_movtpv = cv2.cvtColor(image_movtpv, cv2.COLOR_BGR2RGB)
-    results = holistic.process(image_movtpv)
-    print(results.pose_landmarks)
-    print("\n\n")
+#    results = holistic.process(image_movtpv)
+#    print(results.pose_landmarks)
+#    print("\n\n")
 
 
 # compress the original raw video into a 2Hz low-res video for quick access:
 # e.g.: subj_0.mp4  is changed into s0.mp4
 s = "ffmpeg -i sbj_"+subj+".mp4 -vf \"scale=trunc(iw/25)*2:trunc(ih/25)*2\" -r "+str(int(50/skipSize))+" -map 0 -map -0:a s"+subj+".mp4"
 print("executing:\n "+s)
-p = Popen([s], stdout=PIPE, stderr=PIPE, shell=True, executable="/bin/bash")
-stdout, stderr = p.communicate()
-outstr = stdout.decode('utf-8').strip('\n').strip('\r')
+#p = Popen([s], stdout=PIPE, stderr=PIPE, shell=True, executable="/bin/bash")
+#stdout, stderr = p.communicate()
+#outstr = stdout.decode('utf-8').strip('\n').strip('\r')
