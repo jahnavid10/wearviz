@@ -5,12 +5,13 @@ from subprocess import Popen, PIPE
 import mediapipe as mp
 import cv2
 
-subj = str(4)  # here we set the subject to compress
+subj = str(6
+)  # here we set the subject to compress
 
 # start up mediapipe:
-mp_drawing = mp.solutions.drawing_utils # Drawing helpers
-mp_holistic = mp.solutions.holistic # Mediapipe Solutions
-holistic = mp_holistic.Holistic(min_detection_confidence=0.3, min_tracking_confidence=0.5, static_image_mode=False, model_complexity=2)
+#mp_drawing = mp.solutions.drawing_utils # Drawing helpers
+#mp_holistic = mp.solutions.holistic # Mediapipe Solutions
+#holistic = mp_holistic.Holistic(min_detection_confidence=0.3, min_tracking_confidence=0.5, static_image_mode=False, model_complexity=2)
 
 # compres CSV file into a js-friendly low-res js file
 with open('sbj_'+subj+'.csv') as f:
@@ -52,7 +53,7 @@ with open('dta'+subj+'.js',"w") as f:
 	f.write("','".join( clss ) )
 	f.write("'];\n")
 
-#exit(0)  # remove this for the video:
+exit(0)  # remove this for the video:
 
 # Example to get 3rd person view video and obtain skeleton:
 #tpvmovfile = '/Users/kvl/sciebo/Projects/trimmed_WEAR_clip/sbj_18_tpv_25f.mp4'  #
