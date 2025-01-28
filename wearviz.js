@@ -84,15 +84,16 @@ var plotData = function () {
 					else u.ctx.fillStyle = "#F0F0FF";
 					u.ctx.fillRect(startPos, top, width, height + 20); // left, width for each annotation
 					u.ctx.fillStyle = "black";
-					u.ctx.fillText(lbl[i], startPos + width / 2, 707); // annotation
+					u.ctx.fillText(lbl[i], startPos + width / 2, height + 7); // annotation
 				}
 			}
 			u.ctx.font = "24px Arial";
 			u.ctx.textAlign = "left";
-			u.ctx.fillText("right hand", 7, 24);
-			u.ctx.fillText("left hand", 7, 200);
-			u.ctx.fillText("right ankle", 7, 380);
-			u.ctx.fillText("left ankle", 7, 560);
+			Yoffset = 24;
+			u.ctx.fillText("right hand", 7, Yoffset);
+			u.ctx.fillText("left hand", 7, height / 4 + Yoffset);
+			u.ctx.fillText("right ankle", 7, height / 2 + Yoffset);
+			u.ctx.fillText("left ankle", 7, (height * 3) / 4 + Yoffset);
 			u.ctx.restore();
 		}
 		return { hooks: { drawClear: drawBg } }; // TODO: drawClear is here correct, but when zooming/playing?, this chould be called
