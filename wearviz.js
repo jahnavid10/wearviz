@@ -21,6 +21,65 @@ function loadScript(url, callback) {
 }
 
 var plotData = function () {
+	var top = document.getElementById("toprow");
+	const inb = document.createElement("div");
+	inb.setAttribute("class", "topblk");
+	inb.innerHTML =
+		"Gender: " +
+		inf[0] +
+		"<br/>Hand: " +
+		inf[1] +
+		"<br/>Age: " +
+		inf[2] +
+		"<br/>Height: " +
+		inf[3] +
+		"<br/>Weight: " +
+		inf[4] +
+		"<hr/>Private Workouts:<br/>" +
+		inf[5] +
+		"<br/>Frequency: " +
+		inf[6] +
+		"<hr/>Known Activities: " +
+		inf[7] +
+		"<br/>Regular Activities: " +
+		inf[8];
+	top.appendChild(inb);
+	for (s = 0; s < sess.length; s++) {
+		const session = document.createElement("div");
+		session.setAttribute("class", "topblk");
+		session.innerHTML =
+			"Session " +
+			sess[s][0] +
+			"<hr/>Duration: " +
+			sess[s][1] +
+			"<hr/>Activities: " +
+			sess[s][2] +
+			"<hr/>Month: " +
+			sess[s][3] +
+			"<br/>" +
+			sess[s][4] +
+			"<hr/>" +
+			sess[s][5] +
+			"<hr/>Location_ID: " +
+			sess[s][6];
+		top.appendChild(session);
+	}
+	const flb = document.createElement("div");
+	flb.setAttribute("class", "topblk");
+	flb.innerHTML =
+		"Data Files: <hr/>" +
+		'<a href="https://uni-siegen.sciebo.de/s/enHPo7HwP8RccAe/download?path=%2Fraw%2Fcamera&files=sbj_' +
+		document.getElementById("subjsel").value +
+		'.mp4">Video [' +
+		fls[0] +
+		"GB]</a><br/>" +
+		'<a href="https://uni-siegen.sciebo.de/s/enHPo7HwP8RccAe/download?path=%2Fraw%2Finertial%2F50hz&files=sbj_' +
+		document.getElementById("subjsel").value +
+		'.csv">IMU sensors [' +
+		fls[1] +
+		"MB]</a><br/>";
+	top.appendChild(flb);
+
 	var vid = document.getElementById("v0"),
 		width = window.innerWidth;
 	const data = [
@@ -145,6 +204,7 @@ var plotData = function () {
 		pos = Math.floor((vid.currentTime / vid.duration) * data[0].length); // this works
 		uplot.setCursor({ left: uplot.valToPos(uplot.data[0][pos], "x") });
 	};
+
 	var grph = document.getElementById("chart1");
 	grph.style.border = "solid";
 	const bottom_hint = document.createElement("p");
