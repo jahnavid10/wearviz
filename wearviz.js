@@ -38,6 +38,7 @@ var plotData = function () {
 		llY,
 		llZ,
 	];
+	// wheel scroll zoom
 	function wheelZoomPlugin(opts) {
 		let factor = opts.factor || 0.95;
 		return {
@@ -47,7 +48,6 @@ var plotData = function () {
 					u.over.addEventListener(
 						"wheel",
 						(e) => {
-							// wheel scroll zoom
 							let oxRange = u.scales.x.max - u.scales.x.min;
 							let nxRange = e.deltaY < 0 ? oxRange * factor : oxRange / factor;
 							let nxMin =
@@ -118,15 +118,13 @@ var plotData = function () {
 		],
 		cursor: {
 			bind: {
-				// capture mouse down
 				mousedown: (u, targ, handler) => {
 					return (e) => {
 						vid.currentTime = Math.floor(
 							(vid.duration * u.cursor.idx) / data[0].length,
 						);
-						vid.play(); // start playing the video when clicked in the plot
+						if (vid.paused) vid.play(); // start playing the video when clicked in the plot
 					};
-					// TODO: get data position !!!
 				},
 			},
 			y: false, // hide horizontal crosshair
@@ -140,25 +138,22 @@ var plotData = function () {
 		},
 		legend: { show: false },
 	};
-	let uplot = (vid.onseeking = new uPlot(opts, data, document.body));
-	// change cursor in uPlot when controlling video:
-	vid.ontimeupdate =
-		vid.onplay =
-		vid.onseeking =
-			function () {
-				pos = Math.floor((vid.currentTime / vid.duration) * data[0].length); // this works
-				uplot.setCursor({ left: uplot.valToPos(uplot.data[0][pos], "x") });
-			};
-	// create a border around the graph:
+	let uplot = new uPlot(opts, data, document.body);
+	// change cursor in uPlot when playing video:
+	vid.ontimeupdate = function () {
+		pos = Math.floor((vid.currentTime / vid.duration) * data[0].length); // this works
+		uplot.setCursor({ left: uplot.valToPos(uplot.data[0][pos], "x") });
+	};
 	var grph = document.getElementById("chart1");
 	grph.style.border = "solid";
-	// display tip at the bottom:
-	const node = document.createElement("p");
+	const bottom_hint = document.createElement("p");
 	const txtnode = document.createTextNode(
-		"Click on the plot or video to play, use the scroll wheel to zoom in or out.",
+		"Click on the plot to play, use the scroll wheel to zoom in or out.",
 	);
-	node.appendChild(txtnode);
-	document.body.appendChild(node);
+	bottom_hint.appendChild(txtnode);
+	document.body.appendChild(bottom_hint);
+	cursor_override = document.getElementsByClassName("u-cursor-x");
+	cursor_override[0].style = "border-right:3px solid #FF2D7D;";
 };
 
 loadScript("dta" + document.getElementById("subjsel").value + ".js", plotData);
