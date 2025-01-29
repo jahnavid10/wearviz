@@ -1,28 +1,24 @@
 // retrieve the subject:
-document.getElementById("subjsel").value =
-	window.location.search.substr(5) == ""
-		? "0"
-		: window.location.search.substr(5);
-document.getElementById("vid").src =
-	"s" + document.getElementById("subjsel").value + ".mp4";
-document.getElementById("subjsel").oninput = function (e) {
-	window.location.href =
-		"index.html?sbj=" + document.getElementById("subjsel").value;
+d = document;
+wl = window.location;
+subj = d.getElementById("subjsel");
+subj.value = wl.search.substr(5) == "" ? "0" : wl.search.substr(5);
+subj.oninput = function (e) {
+	wl.href = "index.html?sbj=" + subj.value;
 };
 
 function loadScript(url, callback) {
-	var head = document.head;
-	var script = document.createElement("script");
+	var script = d.createElement("script");
 	script.type = "text/javascript";
 	script.src = url;
 	script.onreadystatechange = callback;
 	script.onload = callback;
-	head.appendChild(script);
+	d.head.appendChild(script);
 }
 
 var plotData = function () {
-	var top = document.getElementById("toprow");
-	const inb = document.createElement("div");
+	var top = d.getElementById("toprow");
+	const inb = d.createElement("div");
 	inb.setAttribute("class", "topblk");
 	inb.innerHTML =
 		"Gender: " +
@@ -64,23 +60,28 @@ var plotData = function () {
 			sess[s][6];
 		top.appendChild(session);
 	}
-	const flb = document.createElement("div");
+	const flb = d.createElement("div");
 	flb.setAttribute("class", "topblk");
+	dlpath =
+		"https://uni-siegen.sciebo.de/s/enHPo7HwP8RccAe/download?path=%2Fraw%2F";
 	flb.innerHTML =
-		"Data Files: <hr/>" +
-		'<a href="https://uni-siegen.sciebo.de/s/enHPo7HwP8RccAe/download?path=%2Fraw%2Fcamera&files=sbj_' +
-		document.getElementById("subjsel").value +
+		'Data Files: <hr/><a href="' +
+		dlpath +
+		"camera&files=sbj_" +
+		subj.value +
 		'.mp4">Video [' +
 		fls[0] +
 		"GB]</a><br/>" +
-		'<a href="https://uni-siegen.sciebo.de/s/enHPo7HwP8RccAe/download?path=%2Fraw%2Finertial%2F50hz&files=sbj_' +
-		document.getElementById("subjsel").value +
+		'<a href="' +
+		dlpath +
+		"inertial%2F50hz&files=sbj_" +
+		subj.value +
 		'.csv">IMU sensors [' +
 		fls[1] +
 		"MB]</a><br/>";
 	top.appendChild(flb);
 
-	var vid = document.getElementById("v0"),
+	var vid = d.getElementById("v0"),
 		width = window.innerWidth;
 	const data = [
 		[...Array(raX.length).keys()],
@@ -204,17 +205,19 @@ var plotData = function () {
 		pos = Math.floor((vid.currentTime / vid.duration) * data[0].length); // this works
 		uplot.setCursor({ left: uplot.valToPos(uplot.data[0][pos], "x") });
 	};
-
-	var grph = document.getElementById("chart1");
+	var grph = d.getElementById("chart1");
 	grph.style.border = "solid";
-	const bottom_hint = document.createElement("p");
-	const txtnode = document.createTextNode(
+	const bottom_hint = d.createElement("p");
+	const txtnode = d.createTextNode(
 		"Click on the plot to play, use the scroll wheel to zoom in or out.",
 	);
 	bottom_hint.appendChild(txtnode);
-	document.body.appendChild(bottom_hint);
-	cursor_override = document.getElementsByClassName("u-cursor-x");
+	d.body.appendChild(bottom_hint);
+	cursor_override = d.getElementsByClassName("u-cursor-x");
 	cursor_override[0].style = "border-right:3px solid #FF2D7D;";
+	// load video at last:
+	vid.src = "s" + subj.value + ".mp4";
+	vid.load();
 };
 
-loadScript("dta" + document.getElementById("subjsel").value + ".js", plotData);
+loadScript("dta" + subj.value + ".js", plotData);
