@@ -1,5 +1,4 @@
-// retrieve the subject:
-d = document;
+d = document; // get elements & start by retrieving the subject:
 wl = window.location;
 subj = d.getElementById("subjsel");
 subj.value = wl.search.substr(5) == "" ? "0" : wl.search.substr(5);
@@ -51,7 +50,6 @@ var plotData = function () {
 	fHTML += '.csv">IMU sensors [' + fls[1] + "MB]</a><br/>";
 	flb.innerHTML = fHTML;
 	top.appendChild(flb);
-
 	///////////// use uplot to plot all data ////////////////////////////////////
 	var vid = d.getElementById("v0");
 	const k = [...Array(raX.length).keys()]; // make incrmenting indices
@@ -98,12 +96,12 @@ var plotData = function () {
 					startPos = u.valToPos(pos[i], "x", true);
 					width = u.valToPos(pos[i + 1], "x", true) - startPos;
 					u.ctx.fillStyle = "black";
-					u.ctx.fillText(lbl[i], startPos + width / 2, u.bbox.height + 7); // annotation
+					u.ctx.fillText(lbl[i], startPos + width / 2, u.bbox.height + 7);
 				}
 			}
 			u.ctx.textAlign = "left";
-			u.ctx.fillText("right hand", 7, u.valToPos(190, "y", true));
-			u.ctx.fillText("left hand", 7, u.valToPos(70, "y", true));
+			u.ctx.fillText("right wrist", 7, u.valToPos(190, "y", true));
+			u.ctx.fillText("left wrist", 7, u.valToPos(70, "y", true));
 			u.ctx.fillText("right ankle", 7, u.valToPos(-50, "y", true));
 			u.ctx.fillText("left ankle", 7, u.valToPos(-170, "y", true));
 		},
@@ -154,7 +152,6 @@ var plotData = function () {
 	);
 	cursorOverride = d.getElementsByClassName("u-cursor-x");
 	cursorOverride[0].style = "border-right:3px solid #FF2D7D;";
-
 	///////////// load video at last ///////////////////////////////////////////
 	vid.src = "s" + subj.value + ".mp4";
 	vid.load();
