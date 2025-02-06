@@ -17,6 +17,7 @@ function loadScript(url, callback) {
 }
 
 var plotData = function () {
+	///////////// add the info boxes at the top /////////////////////////////////
 	var top = d.getElementById("toprow");
 	const inb = d.createElement("div");
 	inb.setAttribute("class", "topblk");
@@ -42,28 +43,18 @@ var plotData = function () {
 	}
 	const flb = d.createElement("div");
 	flb.setAttribute("class", "topblk");
-	dlpath =
+	const dlpath =
 		"https://uni-siegen.sciebo.de/s/enHPo7HwP8RccAe/download?path=%2Fraw%2F";
-	flb.innerHTML =
-		'Data Files: <hr/><a href="' +
-		dlpath +
-		"camera&files=sbj_" +
-		subj.value +
-		'.mp4">Video [' +
-		fls[0] +
-		"GB]</a><br/>" +
-		'<a href="' +
-		dlpath +
-		"inertial%2F50hz&files=sbj_" +
-		subj.value +
-		'.csv">IMU sensors [' +
-		fls[1] +
-		"MB]</a><br/>";
+	var fHTML = 'Data Files: <hr/><a href="' + dlpath + "camera&files=sbj_";
+	fHTML += subj.value + '.mp4">Video [' + fls[0] + "GB]</a><br/>";
+	fHTML += '<a href="' + dlpath + "inertial%2F50hz&files=sbj_" + subj.value;
+	fHTML += '.csv">IMU sensors [' + fls[1] + "MB]</a><br/>";
+	flb.innerHTML = fHTML;
 	top.appendChild(flb);
 
-	var vid = d.getElementById("v0"),
-		width = window.innerWidth;
-	const k = [...Array(raX.length).keys()];
+	///////////// use uplot to plot all data ////////////////////////////////////
+	var vid = d.getElementById("v0");
+	const k = [...Array(raX.length).keys()]; // make incrmenting indices
 	const data = [k, raX, raY, raZ, laX, laY, laZ, rlX, rlY, rlZ, llX, llY, llZ];
 	const wheelZoomHk = [
 		(u) => {
@@ -117,25 +108,19 @@ var plotData = function () {
 			u.ctx.fillText("left ankle", 7, u.valToPos(-170, "y", true));
 		},
 	];
+	let sers = [{ fill: false, ticks: { show: false } }];
+	for (i = 0; i < 12; i++) {
+		c = i % 3 == 0 ? "red" : i % 3 == 1 ? "green" : "blue";
+		l = i % 6 < 3 ? "r" : "l";
+		l += i < 6 ? "a" : "l";
+		l += i % 3 == 0 ? "x" : i % 3 == 1 ? "y" : "z";
+		sers.push({ label: l, stroke: c });
+	}
 	let opts = {
 		id: "chrt",
 		width: window.innerWidth - 9,
 		height: 400,
-		series: [
-			{ fill: false, ticks: { show: false } },
-			{ label: "rax", stroke: "red" },
-			{ label: "ray", stroke: "green" },
-			{ label: "raz", stroke: "blue" },
-			{ label: "lax", stroke: "red" },
-			{ label: "lay", stroke: "green" },
-			{ label: "laz", stroke: "blue" },
-			{ label: "rlx", stroke: "red" },
-			{ label: "rly", stroke: "green" },
-			{ label: "rlz", stroke: "blue" },
-			{ label: "llx", stroke: "red" },
-			{ label: "lly", stroke: "green" },
-			{ label: "llz", stroke: "blue" },
-		],
+		series: sers,
 		cursor: {
 			bind: {
 				mousedown: (u, targ, handler) => {
@@ -143,7 +128,7 @@ var plotData = function () {
 						vid.currentTime = Math.floor(
 							(vid.duration * u.cursor.idx) / u.data[0].length,
 						);
-						if (vid.paused) vid.play(); // start playing the video when clicked in the plot
+						if (vid.paused) vid.play(); // play video when plot is clicked
 					};
 				},
 			},
@@ -155,23 +140,22 @@ var plotData = function () {
 		legend: { show: false },
 	};
 	let uplot = new uPlot(opts, data, document.body);
-	// change cursor in uPlot when playing video:
 	vid.ontimeupdate = function () {
-		// this causes the drawing to be cleared !!
 		p = Math.floor((vid.currentTime / vid.duration) * data[0].length);
-		uplot.setCursor({ left: uplot.valToPos(uplot.data[0][p], "x") });
+		uplot.setCursor({ left: uplot.valToPos(data[0][p], "x") });
 	};
-	var grph = d.getElementById("chrt");
-	grph.style.border = "solid";
-	const bottom_hint = d.createElement("p");
-	const txtnode = d.createTextNode(
-		"Click on plot to play, scroll wheel to zoom",
+	d.getElementById("chrt").style.border = "solid";
+	d.body.appendChild(
+		d
+			.createElement("p")
+			.appendChild(
+				d.createTextNode("Click on plot to play, scroll wheel zooms"),
+			),
 	);
-	bottom_hint.appendChild(txtnode);
-	d.body.appendChild(bottom_hint);
 	cursorOverride = d.getElementsByClassName("u-cursor-x");
 	cursorOverride[0].style = "border-right:3px solid #FF2D7D;";
-	// load video at last:
+
+	///////////// load video at last ///////////////////////////////////////////
 	vid.src = "s" + subj.value + ".mp4";
 	vid.load();
 };
