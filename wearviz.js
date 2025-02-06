@@ -47,7 +47,8 @@ var plotData = function () {
 	var fHTML = 'Data Files: <hr/><a href="' + dlpath + "camera&files=sbj_";
 	fHTML += subj.value + '.mp4">Video [' + fls[0] + "GB]</a><br/>";
 	fHTML += '<a href="' + dlpath + "inertial%2F50hz&files=sbj_" + subj.value;
-	fHTML += '.csv">IMU sensors [' + fls[1] + "MB]</a><br/>";
+	fHTML += '.csv">IMU sensors [' + fls[1] + "MB]</a><br/><br/><br/><br/><hr/>";
+	fHTML += '<a href="https://mariusbock.github.io/wear">main WEAR website</a>';
 	flb.innerHTML = fHTML;
 	top.appendChild(flb);
 	///////////// use uplot to plot all data ////////////////////////////////////
