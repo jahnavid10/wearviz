@@ -75,7 +75,7 @@ var plotData = function () {
 	const drawClearHk = [
 		(u) => {
 			for (var i = 0; i < pos.length - 1; i++) {
-				if (lbl[i] != "null") {
+				if (lbl[i] != "null" && lbl[i] != "") {
 					startPos = u.valToPos(pos[i], "x", true);
 					width = u.valToPos(pos[i + 1], "x", true) - startPos;
 					if (lbl[i].includes("stret")) u.ctx.fillStyle = "#F0FFE0";
