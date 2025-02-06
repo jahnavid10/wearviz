@@ -20,44 +20,24 @@ var plotData = function () {
 	var top = d.getElementById("toprow");
 	const inb = d.createElement("div");
 	inb.setAttribute("class", "topblk");
-	inb.innerHTML =
-		"Gender: " +
-		inf[0] +
-		"<br/>Hand: " +
-		inf[1] +
-		"<br/>Age: " +
-		inf[2] +
-		"<br/>Height: " +
-		inf[3] +
-		"<br/>Weight: " +
-		inf[4] +
-		"<hr/>Private Workouts:<br/>" +
-		inf[5] +
-		"<br/>Frequency: " +
-		inf[6] +
-		"<hr/>Known Activities: " +
-		inf[7] +
-		"<br/>Regular Activities: " +
-		inf[8];
+	inb.innerHTML = "Gender: " + inf[0] + "<br/>Hand: " + inf[1];
+	inb.innerHTML += "<br/>Age: " + inf[2] + "<br/>Height: " + inf[3];
+	inb.innerHTML += "<br/>Weight: " + inf[4];
+	inb.innerHTML += "<hr/>Private Workouts:<br/>" + inf[5];
+	inb.innerHTML += "<br/>Frequency: " + inf[6];
+	inb.innerHTML += "<hr/>Known Activities: " + inf[7];
+	inb.innerHTML += "<br/>Regular Activities: " + inf[8];
 	top.appendChild(inb);
 	for (s = 0; s < sess.length; s++) {
 		const session = document.createElement("div");
 		session.setAttribute("class", "topblk");
-		session.innerHTML =
-			"Session " +
-			sess[s][0] +
-			"<hr/>Duration: " +
-			sess[s][1] +
-			"<hr/>Activities: " +
-			sess[s][2] +
-			"<hr/>Month: " +
-			sess[s][3] +
-			"<br/>" +
-			sess[s][4] +
-			"<hr/>" +
-			sess[s][5] +
-			"<hr/>Location_ID: " +
-			sess[s][6];
+		session.innerHTML = "Session " + sess[s][0];
+		session.innerHTML += "<hr/>Duration: " + sess[s][1];
+		session.innerHTML += "<hr/>Activities: " + sess[s][2];
+		session.innerHTML += "<hr/>Month: " + sess[s][3];
+		session.innerHTML += "<br/>" + sess[s][4];
+		session.innerHTML += "<hr/>" + sess[s][5];
+		session.innerHTML += "<hr/>Location_ID: " + sess[s][6];
 		top.appendChild(session);
 	}
 	const flb = d.createElement("div");
@@ -83,83 +63,62 @@ var plotData = function () {
 
 	var vid = d.getElementById("v0"),
 		width = window.innerWidth;
-	const data = [
-		[...Array(raX.length).keys()],
-		raX,
-		raY,
-		raZ,
-		laX,
-		laY,
-		laZ,
-		rlX,
-		rlY,
-		rlZ,
-		llX,
-		llY,
-		llZ,
+	const k = [...Array(raX.length).keys()];
+	const data = [k, raX, raY, raZ, laX, laY, laZ, rlX, rlY, rlZ, llX, llY, llZ];
+	const wheelZoomHk = [
+		(u) => {
+			let rect = u.over.getBoundingClientRect();
+			u.over.addEventListener("wheel", (e) => {
+				let oxRange = u.scales.x.max - u.scales.x.min;
+				let nxRange = e.deltaY < 0 ? oxRange * 0.95 : oxRange / 0.95;
+				let nxMin =
+					u.posToVal(u.cursor.left, "x") -
+					(u.cursor.left / rect.width) * nxRange;
+				if (nxMin < 0) nxMin = 0;
+				let nxMax = nxMin + nxRange;
+				if (nxMax > u.data[0].length) nxMax = u.data[0].length;
+				u.batch(() => {
+					u.setScale("x", { min: nxMin, max: nxMax });
+				});
+			});
+		},
 	];
-	// wheel scroll zoom
-	function wheelZoomPlugin(opts) {
-		let factor = opts.factor || 0.95;
-		return {
-			hooks: {
-				ready: (u) => {
-					let rect = u.over.getBoundingClientRect();
-					u.over.addEventListener(
-						"wheel",
-						(e) => {
-							let oxRange = u.scales.x.max - u.scales.x.min;
-							let nxRange = e.deltaY < 0 ? oxRange * factor : oxRange / factor;
-							let nxMin =
-								u.posToVal(u.cursor.left, "x") -
-								(u.cursor.left / rect.width) * nxRange;
-							if (nxMin < 0) nxMin = 0;
-							let nxMax = nxMin + nxRange;
-							if (nxMax > data[0].length) nxMax = data[0].length;
-							u.batch(() => {
-								u.setScale("x", { min: nxMin, max: nxMax });
-							});
-						},
-						{ passive: true },
-					);
-				},
-			},
-		};
-	}
-	function bgAnns() {
-		function drawBg(u) {
-			let { top, height } = u.bbox;
-			let { scale } = u.series[0];
-			u.ctx.save();
-			u.ctx.font = "14px Arial";
-			u.ctx.textAlign = "center";
+	const drawClearHk = [
+		(u) => {
 			for (var i = 0; i < pos.length - 1; i++) {
 				if (lbl[i] != "null") {
-					startPos = u.valToPos(pos[i], scale, true);
-					width = u.valToPos(pos[i + 1], scale, true) - startPos;
+					startPos = u.valToPos(pos[i], "x", true);
+					width = u.valToPos(pos[i + 1], "x", true) - startPos;
 					if (lbl[i].includes("stret")) u.ctx.fillStyle = "#F0FFE0";
 					else if (lbl[i].includes("jogg")) u.ctx.fillStyle = "#FFFFE0";
 					else if (lbl[i].includes("burp")) u.ctx.fillStyle = "#FFF0F0";
 					else if (lbl[i].includes("lung")) u.ctx.fillStyle = "#FFF0FF";
 					else u.ctx.fillStyle = "#F0F0FF";
-					u.ctx.fillRect(startPos, top, width, height + 20); // left, width for each annotation
-					u.ctx.fillStyle = "black";
-					u.ctx.fillText(lbl[i], startPos + width / 2, height + 7); // annotation
+					u.ctx.fillRect(startPos, u.bbox.top, width, u.bbox.height);
 				}
 			}
-			u.ctx.font = "24px Arial";
+		},
+	];
+	const drawHk = [
+		(u) => {
+			u.ctx.textAlign = "center";
+			for (var i = 0; i < lbl.length - 1; i++) {
+				if (lbl[i] != "null") {
+					startPos = u.valToPos(pos[i], "x", true);
+					width = u.valToPos(pos[i + 1], "x", true) - startPos;
+					u.ctx.fillStyle = "black";
+					u.ctx.fillText(lbl[i], startPos + width / 2, u.bbox.height + 7); // annotation
+				}
+			}
 			u.ctx.textAlign = "left";
-			Yoffset = 24;
-			u.ctx.fillText("right hand", 7, Yoffset);
-			u.ctx.fillText("left hand", 7, height / 4 + Yoffset);
-			u.ctx.fillText("right ankle", 7, height / 2 + Yoffset);
-			u.ctx.fillText("left ankle", 7, (height * 3) / 4 + Yoffset);
-			u.ctx.restore();
-		}
-		return { hooks: { drawClear: drawBg } }; // TODO: drawClear is here correct, but when zooming/playing?, this chould be called
-	}
+			u.ctx.fillText("right hand", 7, u.valToPos(190, "y", true));
+			u.ctx.fillText("left hand", 7, u.valToPos(70, "y", true));
+			u.ctx.fillText("right ankle", 7, u.valToPos(-50, "y", true));
+			u.ctx.fillText("left ankle", 7, u.valToPos(-170, "y", true));
+		},
+	];
 	let opts = {
-		id: "chart1",
+		id: "chrt",
 		width: window.innerWidth - 9,
 		height: 400,
 		series: [
@@ -182,7 +141,7 @@ var plotData = function () {
 				mousedown: (u, targ, handler) => {
 					return (e) => {
 						vid.currentTime = Math.floor(
-							(vid.duration * u.cursor.idx) / data[0].length,
+							(vid.duration * u.cursor.idx) / u.data[0].length,
 						);
 						if (vid.paused) vid.play(); // start playing the video when clicked in the plot
 					};
@@ -190,31 +149,28 @@ var plotData = function () {
 			},
 			y: false, // hide horizontal crosshair
 		},
-		plugins: [bgAnns(), wheelZoomPlugin({ factor: 0.95 })],
+		hooks: { draw: drawHk, drawClear: drawClearHk, ready: wheelZoomHk },
 		axes: [{}, { scale: "readings", side: 1, grid: { show: true } }],
-		scales: {
-			auto: false,
-			x: { time: false },
-			y: { range: { max: 160, min: -200 } },
-		},
+		scales: { auto: false, x: { time: false } },
 		legend: { show: false },
 	};
 	let uplot = new uPlot(opts, data, document.body);
 	// change cursor in uPlot when playing video:
 	vid.ontimeupdate = function () {
-		pos = Math.floor((vid.currentTime / vid.duration) * data[0].length); // this works
-		uplot.setCursor({ left: uplot.valToPos(uplot.data[0][pos], "x") });
+		// this causes the drawing to be cleared !!
+		p = Math.floor((vid.currentTime / vid.duration) * data[0].length);
+		uplot.setCursor({ left: uplot.valToPos(uplot.data[0][p], "x") });
 	};
-	var grph = d.getElementById("chart1");
+	var grph = d.getElementById("chrt");
 	grph.style.border = "solid";
 	const bottom_hint = d.createElement("p");
 	const txtnode = d.createTextNode(
-		"Click on the plot to play, use the scroll wheel to zoom in or out.",
+		"Click on plot to play, scroll wheel to zoom",
 	);
 	bottom_hint.appendChild(txtnode);
 	d.body.appendChild(bottom_hint);
-	cursor_override = d.getElementsByClassName("u-cursor-x");
-	cursor_override[0].style = "border-right:3px solid #FF2D7D;";
+	cursorOverride = d.getElementsByClassName("u-cursor-x");
+	cursorOverride[0].style = "border-right:3px solid #FF2D7D;";
 	// load video at last:
 	vid.src = "s" + subj.value + ".mp4";
 	vid.load();
