@@ -4,8 +4,14 @@ import numpy as np
 from subprocess import Popen, PIPE
 import mediapipe as mp
 import cv2
+import json
 
-subj = str(6
+# --- Compression Options ---
+quantization_method = "delta"  # "uniform", "adaptive", "bitdepth", "delta"
+compression_mode = "string"  # "array" or "string"
+encoding_method = "ascii_1byte" 
+
+subj = str(0
 )  # here we set the subject to compress
 
 # start up mediapipe:
@@ -14,7 +20,8 @@ subj = str(6
 #holistic = mp_holistic.Holistic(min_detection_confidence=0.3, min_tracking_confidence=0.5, static_image_mode=False, model_complexity=2)
 
 # compres CSV file into a js-friendly low-res js file
-with open('sbj_'+subj+'.csv') as f:
+data_path = "D:/Master Thesis/project/Quantization_compression_techniques/compression_notebook/Wearviz-temp/"
+with open(data_path + 'sbj_'+subj+'.csv') as f:
 	reader = csv.reader(f, delimiter = ',')
 	adata = list(reader)
 print(adata[0])
@@ -28,30 +35,138 @@ indx = []
 clss = []
 for row in adata[1:-1:skipSize]:
 	for sensor in range(0,12):
-		acc[sensor][i] = (float(row[sensor+1])*quant)
-		offset = (quant*16)-(quant*4)
-		if sensor in [0,1,2]: acc[sensor][i] += offset  # right arm
-		elif sensor in [6,7,8]: acc[sensor][i] -= 2*offset  # left leg
-		elif sensor in [3,4,5]: acc[sensor][i] -= offset  # right leg
+		acc[sensor][i] = (float(row[sensor+1]))
 	if row[13] != prvLabel:
 		indx.append(i);
 		clss.append(row[13]);
 		prvLabel = row[13]
 	i+=1
-# write to file:
-with open('dta'+subj+'.js',"w") as f:
-	i=0
-	for sensor in ["raX","raY","raZ","laX","laY","laZ","rlX","rlY","rlZ","llX","llY","llZ"]:
-		f.write("var "+sensor+"=[")
-		f.write(",".join( list( map (str, [int(x) for x in acc[i][:-2] ]) ) ) )  # -2: remove last potential 0*
-		f.write("];\n")
-		i+=1
-	f.write("var pos=[")
-	f.write(",".join( list( map (str, indx) ) ) )
-	f.write("];\n")
-	f.write("var lbl=['")
-	f.write("','".join( clss ) )
-	f.write("'];\n")
+
+# --- Quantization Methods ---
+def uniform_quantization(data, num_levels=95):
+    min_val = np.min(data)
+    max_val = np.max(data)
+    normalized = (data - min_val) / (max_val - min_val)
+    quantized = np.round(normalized * (num_levels - 1))
+    return quantized.astype(int)
+
+def adaptive_quantization(data, segment_size=None, num_levels=95):
+    if segment_size is None:
+        segment_size = len(data)
+    data = np.asarray(data)
+    quantized = np.zeros_like(data, dtype=int)
+    for start in range(0, len(data), segment_size):
+        end = min(start + segment_size, len(data))
+        seg = data[start:end]
+        xmin, xmax = seg.min(), seg.max()
+        if xmax == xmin:
+            continue
+        step = (xmax - xmin) / (num_levels - 1)
+        levels = np.round((seg - xmin) / step).astype(int)
+        quantized[start:end] = levels
+    return quantized
+
+def bit_depth_reduction(data, target_bits=8, ascii_max=94):
+    min_val = np.min(data)
+    max_val = np.max(data)
+    scale = (2**target_bits - 1) / (max_val - min_val)
+    quantized = np.round((data - min_val) * scale).astype(int)
+    if quantized.max() > 0:
+        quantized = np.round((quantized / quantized.max()) * ascii_max).astype(int)
+    return quantized
+
+def delta_encode_quantized(data, num_levels=95):
+    min_val, max_val = np.min(data), np.max(data)
+    normalized = (data - min_val) / (max_val - min_val)
+    quantized = np.floor(normalized * (num_levels - 1)).astype(int)
+    deltas = np.diff(quantized, prepend=0)
+    return deltas, min_val, max_val, quantized
+
+def encode_delta_ascii_scaled(deltas):
+    delta_min = deltas.min()
+    shifted = deltas - delta_min
+    max_shifted = shifted.max()
+    if max_shifted == 0:
+        max_shifted = 1  # to avoid dividing-by-zero
+    scaled = (shifted / max_shifted) * 94
+    ascii_encoded = ''.join(chr(32 + round(val)) for val in scaled)
+    return ascii_encoded, delta_min, max_shifted
+
+
+# --- ASCII Encoders ---
+def encode_ascii_printable_1byte(values):
+    """Encode values as ASCII printable characters (1 byte per value)."""
+    return ''.join([chr(32 + v) for v in values])
+
+
+filename = f'dta{subj}.js'
+
+# --- Write to JS file ---
+with open(filename, "w", encoding='utf-8') as f:
+    f.write('var inf = ["male", "right", "≥40", "180-189 cm", "70-79 kg.", "Cycling", 5, 5, 0];\n')
+    f.write('var sess = [[1, "16:33:30", 7, "mid-Oct.", "morning", "sunny, ≈10◦C", 1],\n')
+    f.write('             [2, "11:55:00", 6, "mid-Oct.", "afternoon", "partly-cloudy, ≈10◦C", 1],\n')
+    f.write('             [3, "18:06:00", 7, "late-Oct.", "afternoon", "partly-cloudy, ≈20◦C", 1]];\n')
+    f.write('var fls = [6.5, 31.5];\n')
+
+    sensor_names = ["raX", "raY", "raZ", "laX", "laY", "laZ", "rlX", "rlY", "rlZ", "llX", "llY", "llZ"]
+
+    for i, sensor in enumerate(sensor_names):
+        data_slice = acc[i]
+        if len(data_slice) < 2:
+            print(f"[Warning] Skipping {sensor} due to short data length.")
+            continue
+
+        if quantization_method == "uniform":
+            quantized = uniform_quantization(data_slice)
+        elif quantization_method == "adaptive":
+            quantized = adaptive_quantization(data_slice)
+        elif quantization_method == "bitdepth":
+            quantized = bit_depth_reduction(data_slice)
+        elif quantization_method == "delta":
+            deltas, min_val, max_val, quantized = delta_encode_quantized(data_slice)
+            print(f"\n▶ Sensor: {sensor}")
+            print(f"Quantized[0:10]: {quantized[:10]}")
+            print(f"Deltas[0:10]: {deltas[:10]}")
+
+            if compression_mode == "array":
+                f.write(f"var {sensor}=[{','.join(map(str, deltas))}];\n")
+                f.write(f"var {sensor}_min={min_val};\n")
+                f.write(f"var {sensor}_max={max_val};\n")
+
+            elif compression_mode == "string":
+                deltas_diff = deltas[1:]
+                ascii_encoded, delta_min, max_shifted = encode_delta_ascii_scaled(deltas_diff)
+                escaped_encoded = json.dumps(ascii_encoded)
+
+                f.write(f"var {sensor} = {escaped_encoded};\n")
+                f.write(f"var {sensor}_delta_min = {delta_min};\n")
+                f.write(f"var {sensor}_delta_max_shifted = {max_shifted};\n")
+                f.write(f"var {sensor}_min = {min_val};\n")
+                f.write(f"var {sensor}_max = {max_val};\n")
+
+            else:
+                raise ValueError("Invalid compression mode")
+            continue
+
+        else:
+            raise ValueError("Invalid quantization method")
+
+        if compression_mode == "array":
+            f.write(f"var {sensor}=[{','.join(map(str, quantized))}];\n")
+        elif compression_mode == "string":
+            if encoding_method == "ascii_1byte":
+                encoded = encode_ascii_printable_1byte(quantized)
+            else:
+                raise ValueError("Invalid encoding method")
+            f.write(f"var {sensor}={repr(encoded)};\n")
+        else:
+            raise ValueError("Invalid compression mode")
+
+    f.write(f"var pos=[{','.join(map(str, indx))}];\n")
+    f.write("var lbl=['" + "','".join(clss) + "'];\n")
+
+print(f"Saved {filename} with mode={compression_mode}, encoding={encoding_method if compression_mode=='string' else 'n/a'}, quantization={quantization_method}")
 
 exit(0)  # remove this for the video:
 
