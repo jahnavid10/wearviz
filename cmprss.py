@@ -20,8 +20,8 @@ subj = str(0
 #holistic = mp_holistic.Holistic(min_detection_confidence=0.3, min_tracking_confidence=0.5, static_image_mode=False, model_complexity=2)
 
 # compres CSV file into a js-friendly low-res js file
-data_path = "D:/Master Thesis/project/Quantization_compression_techniques/compression_notebook/Wearviz-temp/"
-with open(data_path + 'sbj_'+subj+'.csv') as f:
+#data_path = "D:/Master Thesis/project/Quantization_compression_techniques/compression_notebook/Wearviz-temp/"
+with open('sbj_'+subj+'.csv') as f:
 	reader = csv.reader(f, delimiter = ',')
 	adata = list(reader)
 print(adata[0])
