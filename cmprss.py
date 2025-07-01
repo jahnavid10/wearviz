@@ -8,7 +8,7 @@ import json
 
 # --- Compression Options ---
 quantization_method = "uniform"  # "uniform", "adaptive", "bitdepth", "delta"
-compression_mode = "array"  # "array" or "string"
+compression_mode = "string"  # "array" or "string"
 encoding_method = "ascii_1byte" 
 
 subj = str(0
