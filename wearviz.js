@@ -1,30 +1,49 @@
+const timingResults = {};
+
+const pageLoadStart = performance.now();
+
+function withTiming(fn, label) {
+	return function (...args) {
+		const start = performance.now();
+		const result = fn.apply(this, args);
+		const end = performance.now();
+		timingResults[label] = (end - start).toFixed(2);
+		return result;
+	};
+}
+
+
 // JavaScript decoder helpers
-function decodeAscii(str) {
+let decodeAscii = withTiming(function (str) {
 	const OFFSET = 32;
 	return Array.from(str, c => c.charCodeAt(0) - OFFSET);
-}
+}, "decodeAscii");
 
-function decodeDeltaAscii(encodedStr, deltaMin) {
+
+let decodeDeltaAscii = withTiming(function (encodedStr, deltaMin) {
 	const OFFSET = 32;
 	return Array.from(encodedStr, c => (c.charCodeAt(0) - OFFSET) + deltaMin);
-}
+}, "decodeDeltaAscii");
 
-function decodeScaledDeltaAscii(encodedStr, deltaMin, maxShifted) {
-    const OFFSET = 32;
-    return Array.from(encodedStr, c => {
-        const scaled = c.charCodeAt(0) - OFFSET; // [0-94]
+
+let decodeScaledDeltaAscii = withTiming(function (encodedStr, deltaMin, maxShifted) {
+	const OFFSET = 32;
+	return Array.from(encodedStr, c => {
+		const scaled = c.charCodeAt(0) - OFFSET;
 		const shifted = Math.round((scaled / 94) * maxShifted);
-		return shifted + deltaMin; 
-    });
-}
+		return shifted + deltaMin;
+	});
+}, "decodeScaledDeltaAscii");
 
-function deltaDecodeQuantized(deltas) {
+
+let deltaDecodeQuantized = withTiming(function (deltas) {
 	const result = [deltas[0]];
 	for (let i = 1; i < deltas.length; i++) {
 		result.push(result[result.length - 1] + deltas[i]);
 	}
 	return result;
-}
+}, "deltaDecodeQuantized");
+
 
 // Drawing hooks
 const drawHk = [
@@ -208,7 +227,8 @@ var plotData = function () {
 		}
 	}
 	const decodeEnd = performance.now();
-	console.log("⏱ ASCII decoding time:", (decodeEnd - decodeStart).toFixed(2), "ms");
+	timingResults["totalDecode"] = (decodeEnd - decodeStart).toFixed(2);
+
 
 	function drawPlot() {
 		const k = [...Array(raX.length).keys()];
@@ -219,9 +239,8 @@ var plotData = function () {
 			}
 			return arr.map(val => val + offset);
 		};
-		const dataEnd = performance.now();
-		timingResults["dataArrayBuild"] = (dataEnd - dataStart).toFixed(2);
 
+		const dataStart = performance.now();  // Start before actual computation
 		const data = [
 			k,
 			offsetData(raX, 150), offsetData(raY, 150), offsetData(raZ, 150),
@@ -229,6 +248,9 @@ var plotData = function () {
 			offsetData(rlX, -50), offsetData(rlY, -50), offsetData(rlZ, -50),
 			offsetData(llX, -150),offsetData(llY, -150),offsetData(llZ, -150),
 		];
+
+		const dataEnd = performance.now();    // Stop after it's built
+		timingResults["dataArrayBuild"] = (dataEnd - dataStart).toFixed(2);
 
 		const plotStart = performance.now();
 
@@ -284,7 +306,7 @@ var plotData = function () {
 
 		let uplot = new uPlot(opts, data, document.body);
 		const plotEnd = performance.now();
-		console.log("📈 Plot generation time:", (plotEnd - plotStart).toFixed(2), "ms");
+		timingResults["drawPlot"] = (plotEnd - plotStart).toFixed(2);
 
 		vid.ontimeupdate = function () {
 			let p = Math.floor((vid.currentTime / vid.duration) * data[0].length);
@@ -302,7 +324,22 @@ var plotData = function () {
 		cursorOverride[0].style = "border-right:3px solid #FF2D7D;";
 		vid.src = "s" + subj.value + ".mp4";
 		vid.load();
+
+		const pageLoadEnd = performance.now();
+		timingResults["totalWebpageTime"] = (pageLoadEnd - pageLoadStart).toFixed(2);
+
+		displayTimings();
 	}
+	function displayTimings() {
+		const timeBlk = document.createElement("div");
+		timeBlk.className = "topblk";
+		timeBlk.innerHTML = "<b>⏱ Timing Info (ms)</b><hr/>";
+		for (const [fn, time] of Object.entries(timingResults)) {
+			timeBlk.innerHTML += `${fn}: ${time}<br/>`;
+		}
+		document.getElementById("toprow").appendChild(timeBlk);
+	}
+
 };
 
 loadScript("dta" + subj.value + ".js", plotData);
