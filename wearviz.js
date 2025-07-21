@@ -176,10 +176,6 @@ var plotData = function () {
 		const maxShifted = window[`${key}_delta_max_shifted`]; 
 
 		if (typeof rawData === "string" && typeof deltaMin !== "undefined" && typeof maxShifted !== "undefined") {
-			// Logging for debugging
-			console.log(`🔍 Decoding ${key}`);
-			console.log("Encoded string:", rawData.slice(0, 100) + "...");  // Just preview
-			console.log("deltaMin:", deltaMin, "maxShifted:", maxShifted);
 
 			if (typeof firstVal === "undefined") {
 				console.warn(`⚠️ firstVal is undefined for ${key}. Check naming.`);
@@ -200,13 +196,11 @@ var plotData = function () {
 				dequantized = [...quantized];          // fallback
 			}
 			window[key] = dequantized;
-			console.log(`✅ Decoded delta-quantized values for ${key}:`, window[key]);
 
 		} else if (typeof rawData === "string") {
 			// Handle ascii-encoded quantized values (uniform/adaptive/bitdepth)
 			const decoded = decodeAscii(rawData);
 			window[key] = decoded;
-			console.log(`✅ Decoded ascii-quantized values for ${key}:`, window[key]);
 
 		} else if (Array.isArray(rawData)) {
 			const isDelta = typeof window[`${key}_min`] !== "undefined" &&

@@ -7,11 +7,11 @@ import cv2
 import json
 
 # --- Compression Options ---
-quantization_method = "adaptive"  # "uniform", "adaptive", "bitdepth", "delta"
+quantization_method = "uniform"  # "uniform", "adaptive", "bitdepth", "delta"
 compression_mode = "array"  # "array" or "string"
 encoding_method = "ascii_1byte" 
 
-subj = str(0
+subj = str(2
 )  # here we set the subject to compress
 
 # start up mediapipe:
