@@ -7,7 +7,7 @@ import cv2
 import json
 
 # --- Compression Options ---
-quantization_method = "uniform"  # "uniform", "adaptive", "bitdepth", "delta"
+quantization_method = "adaptive"  # "uniform", "adaptive", "bitdepth", "delta"
 compression_mode = "array"  # "array" or "string"
 encoding_method = "ascii_1byte" 
 
@@ -20,7 +20,7 @@ subj = str(0
 #holistic = mp_holistic.Holistic(min_detection_confidence=0.3, min_tracking_confidence=0.5, static_image_mode=False, model_complexity=2)
 
 # compres CSV file into a js-friendly low-res js file
-#data_path = r"C:\Users\JAHNAVI\OneDrive\Desktop\wearviz"
+data_path = r"C:\Users\JAHNAVI\OneDrive\Desktop\wearviz"
 with open('sbj_'+subj+'.csv') as f:
 	reader = csv.reader(f, delimiter = ',')
 	adata = list(reader)
