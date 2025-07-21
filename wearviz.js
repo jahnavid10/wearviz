@@ -316,6 +316,10 @@ var plotData = function () {
 
 		cursorOverride = d.getElementsByClassName("u-cursor-x");
 		cursorOverride[0].style = "border-right:3px solid #FF2D7D;";
+
+		const pageBeforeVideo = performance.now();
+		timingResults["totalBeforeVideo"] = (pageBeforeVideo - pageLoadStart).toFixed(2);
+
 		vid.src = "s" + subj.value + ".mp4";
 		vid.load();
 
