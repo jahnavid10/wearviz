@@ -8,10 +8,10 @@ import json
 
 # --- Compression Options ---
 quantization_method = "uniform"  # "uniform", "adaptive", "bitdepth", "delta"
-compression_mode = "string"  # "array" or "string"
+compression_mode = "array"  # "array" or "string"
 encoding_method = "ascii_1byte" 
 
-subj = str(0
+subj = str(10
 )  # here we set the subject to compress
 
 # start up mediapipe:
