@@ -219,6 +219,9 @@ var plotData = function () {
 			}
 			return arr.map(val => val + offset);
 		};
+		const dataEnd = performance.now();
+		timingResults["dataArrayBuild"] = (dataEnd - dataStart).toFixed(2);
+
 		const data = [
 			k,
 			offsetData(raX, 150), offsetData(raY, 150), offsetData(raZ, 150),
