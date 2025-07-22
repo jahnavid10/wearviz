@@ -26,23 +26,18 @@ let decodeDeltaAscii = withTiming(function (encodedStr, deltaMin) {
 }, "decodeDeltaAscii");
 
 
-let decodeScaledDeltaAscii = withTiming(function (encodedStr, deltaMin, maxShifted) {
-	const OFFSET = 32;
-	return Array.from(encodedStr, c => {
-		const scaled = c.charCodeAt(0) - OFFSET;
-		const shifted = Math.round((scaled / 94) * maxShifted);
-		return shifted + deltaMin;
-	});
-}, "decodeScaledDeltaAscii");
+let decodeCenteredDeltaAscii = withTiming(function (str, maxDelta = 47, offset = 32) {
+	return Array.from(str, c => c.charCodeAt(0) - offset - maxDelta);
+}, "decodeCenteredDeltaAscii");
 
 
-let deltaDecodeQuantized = withTiming(function (deltas) {
-	const result = [deltas[0]];
-	for (let i = 1; i < deltas.length; i++) {
+function deltaDecodeQuantized(deltas, firstVal) {
+	const result = [firstVal];
+	for (let i = 0; i < deltas.length; i++) {
 		result.push(result[result.length - 1] + deltas[i]);
 	}
 	return result;
-}, "deltaDecodeQuantized");
+}
 
 
 // Drawing hooks
@@ -172,18 +167,13 @@ var plotData = function () {
 		const rawData = window[key];
 		const minVal = window[`${key}_min`];
 		const maxVal = window[`${key}_max`];
-		const deltaMin = window[`${key}_delta_min`];
-		const maxShifted = window[`${key}_delta_max_shifted`]; 
+		const firstVal = window[`${key}_first_val`];
+		const maxDelta = window[`${key}_max_delta`];
 
-		if (typeof rawData === "string" && typeof deltaMin !== "undefined" && typeof maxShifted !== "undefined") {
+		if (typeof rawData === "string" && typeof maxDelta !== "undefined" && typeof firstVal !== "undefined") {
+			const deltas = decodeCenteredDeltaAscii(rawData, maxDelta);
+			const quantized = deltaDecodeQuantized(deltas, firstVal);
 
-			if (typeof firstVal === "undefined") {
-				console.warn(`⚠️ firstVal is undefined for ${key}. Check naming.`);
-			}
-			
-			// Decode only the differences
-			const deltas = decodeScaledDeltaAscii(rawData, deltaMin, maxShifted);
-			const quantized = deltaDecodeQuantized(deltas).map(Math.round);
 
 			// Dequantization
 			let dequantized;
@@ -193,7 +183,7 @@ var plotData = function () {
 					minVal + (q / (numLevels - 1)) * (maxVal - minVal)
 				);
 			} else {
-				dequantized = [...quantized];          // fallback
+				dequantized = [...quantized]; 
 			}
 			window[key] = dequantized;
 

@@ -7,11 +7,11 @@ import cv2
 import json
 
 # --- Compression Options ---
-quantization_method = "bitdepth"  # "uniform", "adaptive", "bitdepth", "delta"
+quantization_method = "delta"  # "uniform", "adaptive", "bitdepth", "delta"
 compression_mode = "string"  # "array" or "string"
 encoding_method = "ascii_1byte" 
 
-subj = str(2
+subj = str(0
 )  # here we set the subject to compress
 
 # start up mediapipe:
@@ -82,15 +82,11 @@ def delta_encode_quantized(data, num_levels=95):
     deltas = np.diff(quantized, prepend=0)
     return deltas, min_val, max_val, quantized
 
-def encode_delta_ascii_scaled(deltas):
-    delta_min = deltas.min()
-    shifted = deltas - delta_min
-    max_shifted = shifted.max()
-    if max_shifted == 0:
-        max_shifted = 1  # to avoid dividing-by-zero
-    scaled = (shifted / max_shifted) * 94
-    ascii_encoded = ''.join(chr(32 + round(val)) for val in scaled)
-    return ascii_encoded, delta_min, max_shifted
+def encode_centered_delta_ascii(deltas, max_range=47):
+    clamped = np.clip(deltas, -max_range, max_range)
+    shifted = clamped + max_range  # range [0, 94]
+    ascii_encoded = ''.join(chr(32 + val) for val in shifted)
+    return ascii_encoded, max_range
 
 
 # --- ASCII Encoders ---
@@ -135,15 +131,18 @@ with open(filename, "w", encoding='utf-8') as f:
                 f.write(f"var {sensor}_max={max_val};\n")
 
             elif compression_mode == "string":
-                deltas_diff = deltas[1:]
-                ascii_encoded, delta_min, max_shifted = encode_delta_ascii_scaled(deltas_diff)
+                first_val = quantized[0]
+                deltas_diff = np.diff(quantized)
+                ascii_encoded, max_delta = encode_centered_delta_ascii(deltas_diff)
+
                 escaped_encoded = json.dumps(ascii_encoded)
 
                 f.write(f"var {sensor} = {escaped_encoded};\n")
-                f.write(f"var {sensor}_delta_min = {delta_min};\n")
-                f.write(f"var {sensor}_delta_max_shifted = {max_shifted};\n")
                 f.write(f"var {sensor}_min = {min_val};\n")
                 f.write(f"var {sensor}_max = {max_val};\n")
+                f.write(f"var {sensor}_first_val = {first_val};\n")
+                f.write(f"var {sensor}_max_delta = {max_delta};\n")
+
 
             else:
                 raise ValueError("Invalid compression mode")
