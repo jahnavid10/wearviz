@@ -318,15 +318,34 @@ var plotData = function () {
 
 		displayTimings();
 	}
+	
 	function displayTimings() {
-		const timeBlk = document.createElement("div");
-		timeBlk.className = "topblk";
-		timeBlk.innerHTML = "<b>⏱ Timing Info (ms)</b><hr/>";
-		for (const [fn, time] of Object.entries(timingResults)) {
-			timeBlk.innerHTML += `${fn}: ${time}<br/>`;
+	const timeBlk = document.createElement("div");
+	timeBlk.className = "topblk";
+	timeBlk.innerHTML = "<b>⏱ Timing Info (ms) + Speed & FPS</b><hr/>";
+
+	const sampleCount = raX?.length || 1;  // number of time points
+
+	for (const [fn, time] of Object.entries(timingResults)) {
+		const t = parseFloat(time);
+		let extra = "";
+
+		if ((fn === "totalDecode" || fn === "dataArrayBuild") && t > 0) {
+			const speed = (sampleCount / t).toFixed(2);
+			extra = ` → ${speed} samples/ms`;
 		}
-		document.getElementById("toprow").appendChild(timeBlk);
+
+		if (fn === "drawPlot" && t > 0) {
+			const fps = (1000 / t).toFixed(1);
+			extra = ` → ${fps} FPS`;
+		}
+
+		timeBlk.innerHTML += `${fn}: ${time} ms${extra}<br/>`;
 	}
+
+	document.getElementById("toprow").appendChild(timeBlk);
+}
+
 
 };
 

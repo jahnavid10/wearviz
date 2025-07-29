@@ -34,13 +34,14 @@ prvLabel=-1;  # start with unknown previous class
 indx = []
 clss = []
 for row in adata[1:-1:skipSize]:
-	for sensor in range(0,12):
-		acc[sensor][i] = (float(row[sensor+1]))
-	if row[13] != prvLabel:
-		indx.append(i);
-		clss.append(row[13]);
-		prvLabel = row[13]
-	i+=1
+    for sensor in range(0,12):
+        val = row[sensor + 1]
+        acc[sensor][i] = float(val) if val.strip() != '' else 0.0
+    if row[13] != prvLabel:
+        indx.append(i)
+        clss.append(row[13])
+        prvLabel = row[13]
+    i+=1
 
 # --- Quantization Methods ---
 def uniform_quantization(data, num_levels=95):
