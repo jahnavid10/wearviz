@@ -310,7 +310,7 @@ var plotData = function () {
 		const pageBeforeVideo = performance.now();
 		timingResults["totalBeforeVideo"] = (pageBeforeVideo - pageLoadStart).toFixed(2);
 
-		vid.src = "s" + subj.value + ".mp4";
+		vid.src = "s" + subj.value + ".mp4?ts=" + timestamp;
 		vid.load();
 
 		const pageLoadEnd = performance.now();
@@ -330,4 +330,6 @@ var plotData = function () {
 
 };
 
-loadScript("dta" + subj.value + ".js", plotData);
+const timestamp = new Date().getTime();
+loadScript(`dta${subj.value}.js?ts=${timestamp}`, plotData);
+
