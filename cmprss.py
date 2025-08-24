@@ -8,7 +8,7 @@ import json
 
 # --- Compression Options ---
 quantization_method = "uniform"  # "uniform", "adaptive", "bitdepth", "delta"
-compression_mode = "array"  # "array" or "string"
+compression_mode = "string"  # "array" or "string"
 encoding_method = "ascii_1byte" 
 
 subj = str(0
@@ -20,7 +20,7 @@ subj = str(0
 #holistic = mp_holistic.Holistic(min_detection_confidence=0.3, min_tracking_confidence=0.5, static_image_mode=False, model_complexity=2)
 
 # compres CSV file into a js-friendly low-res js file
-data_path = r"C:\Users\JAHNAVI\OneDrive\Desktop\wearviz"
+#data_path = "D:/Master Thesis/project/Quantization_compression_techniques/compression_notebook/Wearviz-temp/"
 with open('sbj_'+subj+'.csv') as f:
 	reader = csv.reader(f, delimiter = ',')
 	adata = list(reader)
@@ -34,14 +34,13 @@ prvLabel=-1;  # start with unknown previous class
 indx = []
 clss = []
 for row in adata[1:-1:skipSize]:
-    for sensor in range(0,12):
-        val = row[sensor + 1]
-        acc[sensor][i] = float(val) if val.strip() != '' else 0.0
-    if row[13] != prvLabel:
-        indx.append(i)
-        clss.append(row[13])
-        prvLabel = row[13]
-    i+=1
+	for sensor in range(0,12):
+		acc[sensor][i] = (float(row[sensor+1]))
+	if row[13] != prvLabel:
+		indx.append(i);
+		clss.append(row[13]);
+		prvLabel = row[13]
+	i+=1
 
 # --- Quantization Methods ---
 def uniform_quantization(data, num_levels=95):
@@ -83,11 +82,15 @@ def delta_encode_quantized(data, num_levels=95):
     deltas = np.diff(quantized, prepend=0)
     return deltas, min_val, max_val, quantized
 
-def encode_centered_delta_ascii(deltas, max_range=47):
-    clamped = np.clip(deltas, -max_range, max_range)
-    shifted = clamped + max_range  # range [0, 94]
-    ascii_encoded = ''.join(chr(32 + val) for val in shifted)
-    return ascii_encoded, max_range
+def encode_delta_ascii_scaled(deltas):
+    delta_min = deltas.min()
+    shifted = deltas - delta_min
+    max_shifted = shifted.max()
+    if max_shifted == 0:
+        max_shifted = 1  # to avoid dividing-by-zero
+    scaled = (shifted / max_shifted) * 94
+    ascii_encoded = ''.join(chr(32 + round(val)) for val in scaled)
+    return ascii_encoded, delta_min, max_shifted
 
 
 # --- ASCII Encoders ---
@@ -132,18 +135,15 @@ with open(filename, "w", encoding='utf-8') as f:
                 f.write(f"var {sensor}_max={max_val};\n")
 
             elif compression_mode == "string":
-                first_val = quantized[0]
-                deltas_diff = np.diff(quantized)
-                ascii_encoded, max_delta = encode_centered_delta_ascii(deltas_diff)
-
+                deltas_diff = deltas[1:]
+                ascii_encoded, delta_min, max_shifted = encode_delta_ascii_scaled(deltas_diff)
                 escaped_encoded = json.dumps(ascii_encoded)
 
                 f.write(f"var {sensor} = {escaped_encoded};\n")
+                f.write(f"var {sensor}_delta_min = {delta_min};\n")
+                f.write(f"var {sensor}_delta_max_shifted = {max_shifted};\n")
                 f.write(f"var {sensor}_min = {min_val};\n")
                 f.write(f"var {sensor}_max = {max_val};\n")
-                f.write(f"var {sensor}_first_val = {first_val};\n")
-                f.write(f"var {sensor}_max_delta = {max_delta};\n")
-
 
             else:
                 raise ValueError("Invalid compression mode")
