@@ -7,8 +7,8 @@ import cv2
 import json
 
 # --- Compression Options ---
-quantization_method = "uniform"  # "uniform", "adaptive", "bitdepth", "delta"
-compression_mode = "string"  # "array" or "string"
+quantization_method = "delta"  # "uniform", "adaptive", "bitdepth", "delta"
+compression_mode = "array"  # "array" or "string"
 encoding_method = "ascii_1byte" 
 
 subj = str(10
@@ -102,6 +102,8 @@ def encode_ascii_printable_1byte(values):
 
 filename = f'dta{subj}.js'
 
+stats = []
+
 # --- Write to JS file ---
 with open(filename, "w", encoding='utf-8') as f:
     f.write('var inf = ["male", "right", "≥40", "180-189 cm", "70-79 kg.", "Cycling", 5, 5, 0];\n')
@@ -126,9 +128,8 @@ with open(filename, "w", encoding='utf-8') as f:
             quantized = bit_depth_reduction(data_slice)
         elif quantization_method == "delta":
             deltas, min_val, max_val, quantized = delta_encode_quantized(data_slice)
-            print(f"\n▶ Sensor: {sensor}")
-            print(f"Quantized[0:10]: {quantized[:10]}")
-            print(f"Deltas[0:10]: {deltas[:10]}")
+
+            stats.append((quantized.astype(int)))
 
             if compression_mode == "array":
                 f.write(f"var {sensor}=[{','.join(map(str, deltas))}];\n")
@@ -152,6 +153,8 @@ with open(filename, "w", encoding='utf-8') as f:
 
         else:
             raise ValueError("Invalid quantization method")
+        
+        stats.append((quantized.astype(int)))
 
         if compression_mode == "array":
             f.write(f"var {sensor}=[{','.join(map(str, quantized))}];\n")
@@ -169,6 +172,27 @@ with open(filename, "w", encoding='utf-8') as f:
 
 print(f"Saved {filename} with mode={compression_mode}, encoding={encoding_method if compression_mode=='string' else 'n/a'}, quantization={quantization_method}")
 
+if len(stats) > 0:
+    all_q = np.concatenate(stats)  
+    q_min = int(all_q.min())
+    q_max = int(all_q.max())
+    q_range = int(q_max - q_min)
+    q_var = float(np.var(all_q))   
+    q_std = float(np.std(all_q))  
+
+    counts = np.bincount(all_q, minlength=95)
+    probs = counts / counts.sum() if counts.sum() > 0 else counts
+    nonzero = probs > 0
+    q_entropy_bits = float((-probs[nonzero] * np.log2(probs[nonzero])).sum())
+
+    print("\n=== Global Quantized Statistics (across all 12 signals) ===")
+    print(f"Subject: {subj}")
+    print(f"Min: {q_min} | Max: {q_max} | Range: {q_range}")
+    print(f"Variance: {q_var:.4f} | Std Dev: {q_std:.4f}")
+    print(f"Shannon Entropy: {q_entropy_bits:.4f} bits")
+    print("===========================================================\n")
+else:
+    print("\n[Info] No quantized data collected; global statistics not computed.\n")
 exit(0)  # remove this for the video:
 
 # Example to get 3rd person view video and obtain skeleton:
