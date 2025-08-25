@@ -8,10 +8,10 @@ import json
 
 # --- Compression Options ---
 quantization_method = "delta"  # "uniform", "adaptive", "bitdepth", "delta"
-compression_mode = "array"  # "array" or "string"
+compression_mode = "string"  # "array" or "string"
 encoding_method = "ascii_1byte" 
 
-subj = str(10
+subj = str(0
 )  # here we set the subject to compress
 
 # start up mediapipe:
@@ -77,21 +77,24 @@ def bit_depth_reduction(data, target_bits=8, ascii_max=94):
     return quantized
 
 def delta_encode_quantized(data, num_levels=95):
-    min_val, max_val = np.min(data), np.max(data)
+    min_val, max_val = float(np.min(data)), float(np.max(data))
+    if max_val == min_val:
+        quantized = np.zeros_like(data, dtype=int)
+        first_val = 0
+        deltas = np.zeros_like(quantized, dtype=int)
+        return deltas, min_val, max_val, quantized, first_val
+
     normalized = (data - min_val) / (max_val - min_val)
     quantized = np.floor(normalized * (num_levels - 1)).astype(int)
-    deltas = np.diff(quantized, prepend=0)
-    return deltas, min_val, max_val, quantized
+    first_val = int(quantized[0])
+    deltas = np.diff(quantized, prepend=first_val)
+    return deltas, min_val, max_val, quantized, first_val
 
-def encode_delta_ascii_scaled(deltas):
-    delta_min = deltas.min()
-    shifted = deltas - delta_min
-    max_shifted = shifted.max()
-    if max_shifted == 0:
-        max_shifted = 1  # to avoid dividing-by-zero
-    scaled = (shifted / max_shifted) * 94
-    ascii_encoded = ''.join(chr(32 + round(val)) for val in scaled)
-    return ascii_encoded, delta_min, max_shifted
+def encode_centered_delta_ascii(deltas, max_delta=47):
+    deltas = np.asarray(deltas[1:], dtype=int)         
+    clamped = np.clip(deltas, -max_delta, max_delta)  
+    shifted = clamped + max_delta                       
+    return ''.join(chr(32 + int(v)) for v in shifted), int(max_delta)
 
 
 # --- ASCII Encoders ---
@@ -127,23 +130,22 @@ with open(filename, "w", encoding='utf-8') as f:
         elif quantization_method == "bitdepth":
             quantized = bit_depth_reduction(data_slice)
         elif quantization_method == "delta":
-            deltas, min_val, max_val, quantized = delta_encode_quantized(data_slice)
+            deltas, min_val, max_val, quantized, first_val = delta_encode_quantized(data_slice)
 
             stats.append((quantized.astype(int)))
 
             if compression_mode == "array":
                 f.write(f"var {sensor}=[{','.join(map(str, deltas))}];\n")
+                f.write(f"var {sensor}_first_val={first_val};\n")
                 f.write(f"var {sensor}_min={min_val};\n")
                 f.write(f"var {sensor}_max={max_val};\n")
 
             elif compression_mode == "string":
-                deltas_diff = deltas[1:]
-                ascii_encoded, delta_min, max_shifted = encode_delta_ascii_scaled(deltas_diff)
+                ascii_encoded, max_delta = encode_centered_delta_ascii(deltas, max_delta=47)
                 escaped_encoded = json.dumps(ascii_encoded)
-
                 f.write(f"var {sensor} = {escaped_encoded};\n")
-                f.write(f"var {sensor}_delta_min = {delta_min};\n")
-                f.write(f"var {sensor}_delta_max_shifted = {max_shifted};\n")
+                f.write(f"var {sensor}_first_val = {first_val};\n")
+                f.write(f"var {sensor}_max_delta = {max_delta};\n")
                 f.write(f"var {sensor}_min = {min_val};\n")
                 f.write(f"var {sensor}_max = {max_val};\n")
 

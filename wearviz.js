@@ -7,7 +7,8 @@ function withTiming(fn, label) {
 		const start = performance.now();
 		const result = fn.apply(this, args);
 		const end = performance.now();
-		timingResults[label] = (end - start).toFixed(2);
+		const prev = parseFloat(timingResults[label] || 0);
+	  	timingResults[label] = (prev + (end - start)).toFixed(2);
 		return result;
 	};
 }
@@ -31,13 +32,15 @@ let decodeCenteredDeltaAscii = withTiming(function (str, maxDelta = 47, offset =
 }, "decodeCenteredDeltaAscii");
 
 
-function deltaDecodeQuantized(deltas, firstVal) {
-	const result = [firstVal];
-	for (let i = 0; i < deltas.length; i++) {
-		result.push(result[result.length - 1] + deltas[i]);
-	}
-	return result;
-}
+// timed version (replaces your original function)
+let deltaDecodeQuantized = withTiming(function (deltas, firstVal) {
+  const result = [firstVal];
+  for (let i = 0; i < deltas.length; i++) {
+    result.push(result[result.length - 1] + deltas[i]);
+  }
+  return result;
+}, "deltaDecodeQuantized");
+
 
 
 // Drawing hooks
@@ -172,20 +175,10 @@ var plotData = function () {
 
 		if (typeof rawData === "string" && typeof maxDelta !== "undefined" && typeof firstVal !== "undefined") {
 			const deltas = decodeCenteredDeltaAscii(rawData, maxDelta);
-			const quantized = deltaDecodeQuantized(deltas, firstVal);
+			const decodequantized = deltaDecodeQuantized(deltas, firstVal);
 
-
-			// Dequantization
-			let dequantized;
-			if (typeof minVal !== "undefined" && typeof maxVal !== "undefined") {
-				const numLevels = 95;
-				dequantized = quantized.map(q =>
-					minVal + (q / (numLevels - 1)) * (maxVal - minVal)
-				);
-			} else {
-				dequantized = [...quantized]; 
-			}
-			window[key] = dequantized;
+			window[key] = decodequantized;
+			console.log(`✅ Reconstructed Delta Quantized data ${key}:`, window[key].slice(0, 40));
 
 		} else if (typeof rawData === "string") {
 			// Handle ascii-encoded quantized values (uniform/adaptive/bitdepth)
@@ -193,13 +186,16 @@ var plotData = function () {
 			window[key] = decoded;
 
 		} else if (Array.isArray(rawData)) {
-			const isDelta = typeof window[`${key}_min`] !== "undefined" &&
-							typeof window[`${key}_max`] !== "undefined";
+			const hasDeltaMeta =
+				typeof window[`${key}_first_val`] !== "undefined" &&
+				typeof minVal !== "undefined" &&
+				typeof maxVal !== "undefined";
 
-			if (isDelta) {
-				const decoded = deltaDecodeQuantized(rawData);
-				window[key] = decoded; 
-				console.log(`✅ Reconstructed from delta array for ${key}:`, window[key].slice(0, 40));
+			if (hasDeltaMeta) {
+				const firstVal = window[`${key}_first_val`];
+				const decodedQ = deltaDecodeQuantized(rawData, firstVal);
+				window[key] = decodedQ;
+				console.log(`✅ Reconstructed Quantized data ${key}:`, window[key].slice(0, 40));
 			} else {
 				window[key] = rawData.map(Number);
 				console.log(`✅ Quantized array for ${key}:`, window[key].slice(0, 40));
