@@ -11,11 +11,11 @@ quantization_method = "delta"  # "uniform", "adaptive", "bitdepth", "delta"
 compression_mode = "string"  # "array" or "string"
 encoding_method = "ascii_1byte" 
 
-subj = str(0
+subj = str(10
 )  # here we set the subject to compress
 
 # start up mediapipe:
-#mp_drawing = mp.solutions.drawing_utils # Drawing helpers
+#mp_drawing = mp.solutions.drawing_utils # Drawing helperss
 #mp_holistic = mp.solutions.holistic # Mediapipe Solutions
 #holistic = mp_holistic.Holistic(min_detection_confidence=0.3, min_tracking_confidence=0.5, static_image_mode=False, model_complexity=2)
 
