@@ -7,11 +7,11 @@ import cv2
 import json
 
 # --- Compression Options ---
-quantization_method = "delta"  # "uniform", "adaptive", "bitdepth", "delta"
+quantization_method = "uniform"  # "uniform", "adaptive", "bitdepth", "delta"
 compression_mode = "array"  # "array" or "string"
 encoding_method = "ascii_1byte" 
 
-subj = str(10
+subj = str(0
 )  # here we set the subject to compress
 
 # start up mediapipe:
@@ -43,7 +43,7 @@ for row in adata[1:-1:skipSize]:
         prvLabel = row[13]
     i += 1
 
-# --- Quantization Methods ---
+# Quantization Methods
 def uniform_quantization(data, num_levels=95):
     min_val = np.min(data)
     max_val = np.max(data)
@@ -97,7 +97,7 @@ def encode_centered_delta_ascii(deltas, max_delta=47):
     return ''.join(chr(32 + int(v)) for v in shifted), int(max_delta)
 
 
-# --- ASCII Encoders ---
+# ASCII Encoders
 def encode_ascii_printable_1byte(values):
     """Encode values as ASCII printable characters (1 byte per value)."""
     return ''.join([chr(32 + v) for v in values])
@@ -107,7 +107,7 @@ filename = f'dta{subj}.js'
 
 stats = []
 
-# --- Write to JS file ---
+# Write to JS file
 with open(filename, "w", encoding='utf-8') as f:
     f.write('var inf = ["male", "right", "≥40", "180-189 cm", "70-79 kg.", "Cycling", 5, 5, 0];\n')
     f.write('var sess = [[1, "16:33:30", 7, "mid-Oct.", "morning", "sunny, ≈10◦C", 1],\n')
@@ -192,7 +192,7 @@ if len(stats) > 0:
     print(f"Min: {q_min} | Max: {q_max} | Range: {q_range}")
     print(f"Variance: {q_var:.4f} | Std Dev: {q_std:.4f}")
     print(f"Shannon Entropy: {q_entropy_bits:.4f} bits")
-    print("===========================================================\n")
+    print("\n")
 else:
     print("\n[Info] No quantized data collected; global statistics not computed.\n")
 exit(0)  # remove this for the video:
