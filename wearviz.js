@@ -28,7 +28,7 @@ let decodeDeltaAscii = withTiming(function (encodedStr, deltaMin) {
 
 
 let decodeCenteredDeltaAscii = withTiming(function (str, maxDelta = 47, offset = 32) {
-	return Array.from(str, c => c.charCodeAt(0) - offset - maxDelta);
+	return Array.from(str, c => (c.charCodeAt(0) - offset) - maxDelta);
 }, "decodeCenteredDeltaAscii");
 
 
